@@ -1,0 +1,17 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    Gupalo\PeekabooBundle\Controller\:
+        resource: '../../Controller/'
+        tags: [ 'controller.service_arguments' ]
+
+    Gupalo\PeekabooBundle\Client\Client:
+        bind:
+            $baseIdentityServerUrl: '%env(IDENTITY_SERVER_URL)%'
+
+    Gupalo\PeekabooBundle\ArgumentResolver\IdentityRequestResolver:
+        tags:
+            - { name: controller.request_value_resolver, priority: 255 }
