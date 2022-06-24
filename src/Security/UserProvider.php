@@ -9,6 +9,7 @@ use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Serializer\Exception\UnsupportedException;
 
 class UserProvider implements UserProviderInterface
 {
@@ -18,9 +19,9 @@ class UserProvider implements UserProviderInterface
     ) {
     }
 
-    public function refreshUser(UserInterface $user): UserInterface
+    public function refreshUser(UserInterface $user)
     {
-        return $this->getUser();
+        throw new UnsupportedUserException();
     }
 
     public function supportsClass(string $class): bool
