@@ -27,17 +27,18 @@ class AuthController extends AbstractController
         if ($request->get('__peekaboo_token')) {
             $this->session->set('__peekaboo_token', $request->get('__peekaboo_token'));
 
-            return new RedirectResponse($this->session->get('__peekaboo_referrer', '/'));
+            // @todo
+            return new RedirectResponse('/peekaboo', 301);
         }
 
         // @todo referrer name in env
-        $this->session->set('__peekaboo_referrer', $request->headers->get('referer'));
+        $this->session->set('__peekaboo_referer', $request->headers->get('referer'));
         $identityRequestDTO = new IdentityRequestDTO([
-            'redirect_url' => '?/peekaboo/auth', // @todo get full path with schema
+            'redirect_url' => $request->getScheme() . '://atlas.loc:8001/peekaboo/auth', // @todo
             'app' => '' // @todo ?
         ]);
 
-        // @todo
-        return new RedirectResponse('identity_server_url?' . http_build_query($identityRequestDTO->jsonSerialize())); // @todo
+        // @todo env
+        return new RedirectResponse($_ENV['IDENTITY_SERVER_URL'] . $_ENV['IDENTITY_SERVER_AUTH_PATH'] . '?' . http_build_query($identityRequestDTO->jsonSerialize()), 301);
     }
 }
