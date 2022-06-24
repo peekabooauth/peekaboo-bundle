@@ -2,6 +2,7 @@
 
 namespace Gupalo\PeekabooBundle\Security;
 
+use Gupalo\PeekabooBundle\DTO\UserDTO;
 use Gupalo\PeekabooBundle\Services\TokenStorage;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +33,7 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
 
     public function supports(Request $request): bool
     {
+        // @todo The username cannot be empty.!!!
         if ($this->tokenStorage->getToken()) {
             return true;
         }
@@ -41,6 +43,7 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
 
     public function authenticate(Request $request): Passport
     {
+        /** @var UserDTO $user */
         $user = $this->userProvider->loadUserByIdentifier(
             $this->tokenStorage->getToken()
         );

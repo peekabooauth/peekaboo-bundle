@@ -5,12 +5,11 @@ namespace Gupalo\PeekabooBundle\Security;
 use Gupalo\PeekabooBundle\Client\Client;
 use Gupalo\PeekabooBundle\DTO\UserDTO;
 use Gupalo\PeekabooBundle\Services\TokenStorage;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Serializer\Exception\UnsupportedException;
+use Throwable;
 
 class UserProvider implements UserProviderInterface
 {
@@ -20,7 +19,7 @@ class UserProvider implements UserProviderInterface
     ) {
     }
 
-    public function refreshUser(UserInterface $user)
+    public function refreshUser(UserInterface $user): void
     {
         throw new UnsupportedUserException();
     }
@@ -44,7 +43,7 @@ class UserProvider implements UserProviderInterface
 
         try {
             $user = $this->client->getUser($token);
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
             $this->tokenStorage->clearToken();
             throw new UserNotFoundException('User not found.');
         }

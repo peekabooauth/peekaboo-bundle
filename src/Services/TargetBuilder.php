@@ -15,20 +15,18 @@ class TargetBuilder
         $this->session = $requestStack->getSession();
     }
 
-    public function getTargerUrl(): string
+    public function getTargetUrl(): string
     {
         $request = $this->requestStack->getCurrentRequest();
 
         $firewallConfig = $this->firewallMap->getFirewallConfig($request);
-        
+
         if ($firewallConfig === null) {
             return '/';
         }
 
         $firewallName = $firewallConfig->getName();
 
-        $url = $this->session->get('_security.' . $firewallName . '.target_path', '/');
-        
-        return $url;
+        return $this->session->get('_security.' . $firewallName . '.target_path', '/');
     }
 }
