@@ -12,11 +12,9 @@ class Client
 
     private BaseClient $client;
 
-    public function __construct(string $baseIdentityServerUrl)
+    public function __construct(string $identityServerUrlInternal)
     {
-        // @todo
-        $options['base_uri'] = 'http://app_pb';
-        //$options['base_uri'] = $baseIdentityServerUrl;
+        $options['base_uri'] = $identityServerUrlInternal;
         $options['headers']['Content-Type'] = 'application/json';
 
         $this->client = new BaseClient($options);

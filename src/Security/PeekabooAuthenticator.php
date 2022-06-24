@@ -2,9 +2,9 @@
 
 namespace Gupalo\PeekabooBundle\Security;
 
+use Gupalo\PeekabooBundle\Services\TokenStorage;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -19,21 +19,20 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 class PeekabooAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
     public function __construct(
+        private RouterInterface $router,
         private UserProvider $userProvider,
-        private RequestStack $requestStack,
-        private RouterInterface $router
+        private TokenStorage $tokenStorage
     ) {
     }
 
     protected function getLoginUrl(Request $request): string
     {
-        // @todo
-        return '';
+        return $this->router->generate('peekaboo_auth');
     }
 
     public function supports(Request $request): bool
     {
-        if ($this->requestStack->getSession()->get('__peekaboo_token', null)) {
+        if ($this->tokenStorage->getToken()) {
             return true;
         }
 
@@ -42,7 +41,9 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
 
     public function authenticate(Request $request): Passport
     {
-        $user = $this->userProvider->loadUserByIdentifier($this->requestStack->getSession()->get('__peekaboo_token'));
+        $user = $this->userProvider->loadUserByIdentifier(
+            $this->tokenStorage->getToken()
+        );
 
         return new SelfValidatingPassport(new UserBadge($user->email));
 
@@ -60,14 +61,13 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
-        // @todo redirect clear peekaboo token
-        return new Response('fail');
+        $this->tokenStorage->clearToken();
+
+        return new RedirectResponse($this->getLoginUrl($request));
     }
 
     public function start(Request $request, AuthenticationException $authException = null): Response
     {
-        $url = $this->router->generate('peekaboo_auth');
-
-        return new RedirectResponse($url);
+        return new RedirectResponse($this->getLoginUrl($request));
     }
 }

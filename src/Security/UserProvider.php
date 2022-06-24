@@ -4,6 +4,7 @@ namespace Gupalo\PeekabooBundle\Security;
 
 use Gupalo\PeekabooBundle\Client\Client;
 use Gupalo\PeekabooBundle\DTO\UserDTO;
+use Gupalo\PeekabooBundle\Services\TokenStorage;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
@@ -14,8 +15,8 @@ use Symfony\Component\Serializer\Exception\UnsupportedException;
 class UserProvider implements UserProviderInterface
 {
     public function __construct(
-        private RequestStack $requestStack,
-        private Client $client
+        private Client $client,
+        private TokenStorage $tokenStorage
     ) {
     }
 
@@ -36,8 +37,7 @@ class UserProvider implements UserProviderInterface
 
     private function getUser(): UserInterface
     {
-        $session = $this->requestStack->getSession();
-        $token = $session->get('__peekaboo_token', null);
+        $token = $this->tokenStorage->getToken();
         if (!$token) {
             throw new UserNotFoundException('User not found.');
         }
@@ -45,7 +45,7 @@ class UserProvider implements UserProviderInterface
         try {
             $user = $this->client->getUser($token);
         } catch (\Throwable $e) {
-            // @todo maybe clear token
+            $this->tokenStorage->clearToken();
             throw new UserNotFoundException('User not found.');
         }
 

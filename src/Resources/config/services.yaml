@@ -9,7 +9,7 @@ services:
 
     Gupalo\PeekabooBundle\Client\Client:
         bind:
-            $baseIdentityServerUrl: '%env(IDENTITY_SERVER_URL)%'
+            $identityServerUrlInternal: '%env(IDENTITY_SERVER_URL_INTERNAL)%'
 
     Gupalo\PeekabooBundle\ArgumentResolver\IdentityRequestResolver:
         tags:
@@ -20,3 +20,16 @@ services:
 
     Gupalo\PeekabooBundle\Security\UserProvider:
         public: true
+        
+    Gupalo\PeekabooBundle\Services\TargetBuilder:
+        public: true
+        
+    Gupalo\PeekabooBundle\Services\AuthRedirectBuilder:
+        bind:
+            $identityServerUrlExternal: '%env(IDENTITY_SERVER_URL_EXTERNAL)%'
+            $identityServerAuthPath: '%env(IDENTITY_SERVER_AUTH_PATH)%'
+        
+        
+    Gupalo\PeekabooBundle\Services\TokenStorage:
+        bind:
+            $tokenName: '%env(JWT_TOKEN_NAME)%'
