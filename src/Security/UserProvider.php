@@ -19,9 +19,13 @@ class UserProvider implements UserProviderInterface
     ) {
     }
 
-    public function refreshUser(UserInterface $user): void
+    public function refreshUser(UserInterface $user): UserInterface
     {
-        throw new UnsupportedUserException();
+        if (!$user instanceof UserDTO) {
+            throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', get_debug_type($user)));
+        }
+
+        return $this->getUser();
     }
 
     public function supportsClass(string $class): bool

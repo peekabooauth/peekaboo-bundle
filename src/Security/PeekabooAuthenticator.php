@@ -33,7 +33,6 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
 
     public function supports(Request $request): bool
     {
-        // @todo The username cannot be empty.!!!
         if ($this->tokenStorage->getToken()) {
             return true;
         }
