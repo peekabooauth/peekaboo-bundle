@@ -38,8 +38,10 @@ firewalls:
 
 Env:
 ```php
-IDENTITY_SERVER_URL_EXTERNAL=http://127.0.0.1:8000
+IDENTITY_SERVER_URL_EXTERNAL=http://pb.loc
 IDENTITY_SERVER_AUTH_PATH=/identity/auth
-IDENTITY_SERVER_URL_INTERNAL=http://peekaboo_app
+IDENTITY_SERVER_LOGOUT_PATH=/identity/logout
+ROUTE_AFTER_REDIRECT=homepage
+IDENTITY_SERVER_URL_INTERNAL=http://pb_app
 JWT_TOKEN_NAME=__peekaboo_token
 ```
