@@ -4,13 +4,13 @@ Peekaboo Bundle
 ## Install
 
 ```bash
-composer require gupalo/peekaboo-bundle
+composer require peekabooauth/peekaboo-bundle
 ```
 
 Add to `config/bundles.php`
 
 ```php
-Gupalo\PeekabooBundle\PeekabooBundle::class => ['all' => true]
+Peekabooauth\PeekabooBundle\PeekabooBundle::class => ['all' => true]
 ```
 
 Add to `config/routes/annotations.yaml`
@@ -26,13 +26,13 @@ Add to `config/packages/security.yaml`
 ......
 providers:
     peekaboo_user_provider:
-        id: Gupalo\PeekabooBundle\Security\UserProvider
+        id: Peekabooauth\PeekabooBundle\Security\UserProvider
 ......
 firewalls:
     peekaboo:
         pattern: ^/
         custom_authenticators:
-            - Gupalo\PeekabooBundle\Security\PeekabooAuthenticator
+            - Peekabooauth\PeekabooBundle\Security\PeekabooAuthenticator
         provider: peekaboo_user_provider
 ```
 

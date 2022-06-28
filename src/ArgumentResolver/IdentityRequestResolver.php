@@ -1,8 +1,8 @@
 <?php
 
-namespace Gupalo\PeekabooBundle\ArgumentResolver;
+namespace Peekabooauth\PeekabooBundle\ArgumentResolver;
 
-use Gupalo\PeekabooBundle\DTO\IdentityRequestDTO;
+use Peekabooauth\PeekabooBundle\DTO\IdentityRequestDTO;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;

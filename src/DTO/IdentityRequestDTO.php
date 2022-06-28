@@ -1,6 +1,6 @@
 <?php
 
-namespace Gupalo\PeekabooBundle\DTO;
+namespace Peekabooauth\PeekabooBundle\DTO;
 
 use Symfony\Component\Validator\Constraints as Assert;
 

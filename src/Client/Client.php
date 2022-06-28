@@ -1,8 +1,8 @@
 <?php
 
-namespace Gupalo\PeekabooBundle\Client;
+namespace Peekabooauth\PeekabooBundle\Client;
 
-use Gupalo\PeekabooBundle\DTO\UserDTO;
+use Peekabooauth\PeekabooBundle\DTO\UserDTO;
 use GuzzleHttp\Client as BaseClient;
 use GuzzleHttp\Psr7\Request;
 

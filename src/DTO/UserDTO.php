@@ -1,6 +1,6 @@
 <?php
 
-namespace Gupalo\PeekabooBundle\DTO;
+namespace Peekabooauth\PeekabooBundle\DTO;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -32,7 +32,7 @@ class UserDTO implements UserInterface, \JsonSerializable
     {
         return $this->email;
     }
-    
+
     public function jsonSerialize(): array
     {
         return [

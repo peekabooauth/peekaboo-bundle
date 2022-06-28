@@ -1,6 +1,6 @@
 <?php
 
-namespace Gupalo\PeekabooBundle\DependencyInjection;
+namespace Peekabooauth\PeekabooBundle\DependencyInjection;
 
 use Exception;
 use Symfony\Component\Config\FileLocator;

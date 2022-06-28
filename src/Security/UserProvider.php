@@ -1,10 +1,10 @@
 <?php
 
-namespace Gupalo\PeekabooBundle\Security;
+namespace Peekabooauth\PeekabooBundle\Security;
 
-use Gupalo\PeekabooBundle\Client\Client;
-use Gupalo\PeekabooBundle\DTO\UserDTO;
-use Gupalo\PeekabooBundle\Services\TokenStorage;
+use Peekabooauth\PeekabooBundle\Client\Client;
+use Peekabooauth\PeekabooBundle\DTO\UserDTO;
+use Peekabooauth\PeekabooBundle\Services\TokenStorage;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;

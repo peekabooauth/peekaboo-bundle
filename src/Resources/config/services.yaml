@@ -4,32 +4,42 @@ services:
         autoconfigure: true
         public: true
 
-    Gupalo\PeekabooBundle\Controller\AuthController:
+    Peekabooauth\PeekabooBundle\Controller\AuthController:
         tags: [ 'controller.service_arguments' ]
 
-    Gupalo\PeekabooBundle\Client\Client:
+    Peekabooauth\PeekabooBundle\Controller\LogoutController:
+        tags: [ 'controller.service_arguments' ]
+
+    Peekabooauth\PeekabooBundle\Client\Client:
         bind:
             $identityServerUrlInternal: '%env(IDENTITY_SERVER_URL_INTERNAL)%'
 
-    Gupalo\PeekabooBundle\ArgumentResolver\IdentityRequestResolver:
+    Peekabooauth\PeekabooBundle\ArgumentResolver\IdentityRequestResolver:
         tags:
             - { name: controller.request_value_resolver, priority: 255 }
 
-    Gupalo\PeekabooBundle\Security\PeekabooAuthenticator:
+    Peekabooauth\PeekabooBundle\Security\PeekabooAuthenticator:
         public: true
 
-    Gupalo\PeekabooBundle\Security\UserProvider:
+    Peekabooauth\PeekabooBundle\Security\UserProvider:
         public: true
-        
-    Gupalo\PeekabooBundle\Services\TargetBuilder:
+
+    Peekabooauth\PeekabooBundle\Services\TargetBuilder:
         public: true
-        
-    Gupalo\PeekabooBundle\Services\AuthRedirectBuilder:
+
+    Peekabooauth\PeekabooBundle\Services\AuthRedirectBuilder:
         bind:
             $identityServerUrlExternal: '%env(IDENTITY_SERVER_URL_EXTERNAL)%'
             $identityServerAuthPath: '%env(IDENTITY_SERVER_AUTH_PATH)%'
-        
-        
-    Gupalo\PeekabooBundle\Services\TokenStorage:
+            $identityServerLogoutPath: '%env(IDENTITY_SERVER_LOGOUT_PATH)%'
+            $routeAfterRedirect: '%env(ROUTE_AFTER_REDIRECT)%'
+
+
+    Peekabooauth\PeekabooBundle\Services\TokenStorage:
         bind:
             $tokenName: '%env(JWT_TOKEN_NAME)%'
+
+    Peekabooauth\PeekabooBundle\Listener\LogoutListener:
+        tags:
+            -   name: 'kernel.event_listener'
+                event: 'Symfony\Component\Security\Http\Event\LogoutEvent'

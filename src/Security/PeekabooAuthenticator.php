@@ -1,9 +1,9 @@
 <?php
 
-namespace Gupalo\PeekabooBundle\Security;
+namespace Peekabooauth\PeekabooBundle\Security;
 
-use Gupalo\PeekabooBundle\DTO\UserDTO;
-use Gupalo\PeekabooBundle\Services\TokenStorage;
+use Peekabooauth\PeekabooBundle\DTO\UserDTO;
+use Peekabooauth\PeekabooBundle\Services\TokenStorage;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

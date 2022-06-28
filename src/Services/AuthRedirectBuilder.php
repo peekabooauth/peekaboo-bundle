@@ -1,8 +1,8 @@
 <?php
 
-namespace Gupalo\PeekabooBundle\Services;
+namespace Peekabooauth\PeekabooBundle\Services;
 
-use Gupalo\PeekabooBundle\DTO\IdentityRequestDTO;
+use Peekabooauth\PeekabooBundle\DTO\IdentityRequestDTO;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -11,6 +11,8 @@ class AuthRedirectBuilder
     public function __construct(
         private string $identityServerUrlExternal,
         private string $identityServerAuthPath,
+        private string $identityServerLogoutPath,
+        private string $routeAfterRedirect,
         private RouterInterface $router
     ){
     }
@@ -26,5 +28,13 @@ class AuthRedirectBuilder
             $this->identityServerAuthPath .
             '?' .
             http_build_query($identityRequestDTO->jsonSerialize());
+    }
+
+    public function getRedirectIdentityLogoutUrl(): string
+    {
+        return $this->identityServerUrlExternal .
+            $this->identityServerLogoutPath .
+            '?redirect_url=' .
+            $this->router->generate($this->routeAfterRedirect, [], UrlGeneratorInterface::ABSOLUTE_URL);
     }
 }

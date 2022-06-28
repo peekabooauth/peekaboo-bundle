@@ -1,6 +1,6 @@
 <?php
 
-namespace Gupalo\PeekabooBundle;
+namespace Peekabooauth\PeekabooBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
