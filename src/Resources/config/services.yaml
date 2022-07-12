@@ -33,6 +33,8 @@ services:
             $identityServerAuthPath: '%env(IDENTITY_SERVER_AUTH_PATH)%'
             $identityServerLogoutPath: '%env(IDENTITY_SERVER_LOGOUT_PATH)%'
             $routeAfterRedirect: '%env(ROUTE_AFTER_REDIRECT)%'
+            $app: '%env(PEEKABOO_APPLICATION_NAME)%'
+            $secret: '%env(PEEKABOO_APPLICATION_SECRET)%'
 
 
     Peekabooauth\PeekabooBundle\Services\TokenStorage:

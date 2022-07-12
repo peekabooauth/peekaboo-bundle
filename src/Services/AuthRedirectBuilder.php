@@ -13,6 +13,8 @@ class AuthRedirectBuilder
         private string $identityServerAuthPath,
         private string $identityServerLogoutPath,
         private string $routeAfterRedirect,
+        private string $app,
+        private string $secret,
         private RouterInterface $router
     ){
     }
@@ -21,7 +23,8 @@ class AuthRedirectBuilder
     {
         $identityRequestDTO = new IdentityRequestDTO([
             'redirect_url' => $this->router->generate('peekaboo_auth', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            'app' => '' // @todo ?
+            'app' => $this->app,
+            'secret' => $this->secret
         ]);
 
         return $this->identityServerUrlExternal .
