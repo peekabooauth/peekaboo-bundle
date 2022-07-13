@@ -13,6 +13,7 @@ services:
     Peekabooauth\PeekabooBundle\Client\Client:
         bind:
             $identityServerUrlInternal: '%env(IDENTITY_SERVER_URL_INTERNAL)%'
+            $app: '%env(PEEKABOO_APPLICATION_NAME)%'
 
     Peekabooauth\PeekabooBundle\ArgumentResolver\IdentityRequestResolver:
         tags:
