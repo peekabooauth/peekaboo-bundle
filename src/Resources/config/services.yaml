@@ -40,7 +40,7 @@ services:
 
     Peekabooauth\PeekabooBundle\Services\TokenStorage:
         bind:
-            $tokenName: '%env(JWT_TOKEN_NAME)%'
+            $tokenName: '__peekaboo_token'
 
     Peekabooauth\PeekabooBundle\Listener\LogoutListener:
         tags:
