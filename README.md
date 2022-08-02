@@ -34,15 +34,23 @@ firewalls:
         custom_authenticators:
             - Peekabooauth\PeekabooBundle\Security\PeekabooAuthenticator
         provider: peekaboo_user_provider
+.......
+access_control:
+    - { path: ^/peekaboo/auth, roles: PUBLIC_ACCESS }
 ```
 
 Env:
 ```php
-IDENTITY_SERVER_URL_EXTERNAL=http://pb.loc
+IDENTITY_SERVER_URL_EXTERNAL=https://peekabooauth.com
 IDENTITY_SERVER_AUTH_PATH=/identity/auth
 IDENTITY_SERVER_LOGOUT_PATH=/identity/logout
 ROUTE_AFTER_REDIRECT=homepage
-IDENTITY_SERVER_URL_INTERNAL=http://pb_app
+IDENTITY_SERVER_URL_INTERNAL=https://peekabooauth.com
 PEEKABOO_APPLICATION_NAME=atlas
-PEEKABOO_APPLICATION_SECRET=2d59ee977293e9025f343e2fb1dcde49
+PEEKABOO_APPLICATION_SECRET=cb76217cd4ebae7b85f93312d8606c7e
+```
+
+JSON TOKEN for api
+```bash
+curl -X POST -H "Content-Type: application/json" https://peekabooauth.com/api/login_check -d '{"username":"andriy@loc.loc","password":"123456"}'
 ```
