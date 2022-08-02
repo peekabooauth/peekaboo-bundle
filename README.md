@@ -49,8 +49,3 @@ IDENTITY_SERVER_URL_INTERNAL=https://peekabooauth.com
 PEEKABOO_APPLICATION_NAME=atlas
 PEEKABOO_APPLICATION_SECRET=cb76217cd4ebae7b85f93312d8606c7e
 ```
-
-JSON TOKEN for api
-```bash
-curl -X POST -H "Content-Type: application/json" https://peekabooauth.com/api/login_check -d '{"username":"andriy@loc.loc","password":"123456"}'
-```

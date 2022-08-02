@@ -21,8 +21,14 @@ services:
 
     Peekabooauth\PeekabooBundle\Security\PeekabooAuthenticator:
         public: true
+    
+    Peekabooauth\PeekabooBundle\Security\ApiPeekabooAuthenticator:
+        public: true
 
-    Peekabooauth\PeekabooBundle\Security\UserProvider:
+    Peekabooauth\PeekabooBundle\UserProvider\UserProvider:
+        public: true
+    
+    Peekabooauth\PeekabooBundle\UserProvider\ApiUserProvider:
         public: true
 
     Peekabooauth\PeekabooBundle\Services\TargetBuilder:

@@ -3,12 +3,10 @@
 namespace Peekabooauth\PeekabooBundle\Security;
 
 use Peekabooauth\PeekabooBundle\DTO\UserDTO;
-use Peekabooauth\PeekabooBundle\Services\TokenStorage;
-use Peekabooauth\PeekabooBundle\UserProvider\UserProvider;
+use Peekabooauth\PeekabooBundle\UserProvider\ApiUserProvider;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -18,33 +16,24 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
-class PeekabooAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
+class ApiPeekabooAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
-    public function __construct(
-        private RouterInterface $router,
-        private UserProvider $userProvider,
-        private TokenStorage $tokenStorage
-    ) {
-    }
-
-    protected function getLoginUrl(Request $request): string
+    public function __construct(private ApiUserProvider $userProvider)
     {
-        return $this->router->generate('peekaboo_auth');
     }
 
     public function supports(Request $request): bool
     {
-        return (bool)$this->tokenStorage->getToken();
+        return $this->getToken($request);
     }
 
     public function authenticate(Request $request): Passport
     {
+        $token = $this->getToken($request);
         /** @var UserDTO $user */
-        $user = $this->userProvider->loadUserByIdentifier(
-            $this->tokenStorage->getToken()
-        );
+        $user = $this->userProvider->loadUserByIdentifier($token);
 
-        return new SelfValidatingPassport(new UserBadge($user->email));
+        return new SelfValidatingPassport(new UserBadge($token));
 
     }
 
@@ -60,13 +49,16 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
-        $this->tokenStorage->clearToken();
+        return new Response('Bad auth', 403);
+    }
 
-        return new RedirectResponse($this->getLoginUrl($request));
+    private function getToken(Request $request): ?string
+    {
+        return $request->headers->get('Authorization', false);
     }
 
     public function start(Request $request, AuthenticationException $authException = null): Response
     {
-        return new RedirectResponse($this->getLoginUrl($request));
+        return new Response('Need auth', 401);
     }
 }
