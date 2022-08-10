@@ -1,3 +1,12 @@
+parameters:
+    env(IDENTITY_SERVER_URL_EXTERNAL): 'https://peekabooauth.com'
+    env(IDENTITY_SERVER_AUTH_PATH): '/identity/auth'
+    env(IDENTITY_SERVER_LOGOUT_PATH): '/identity/logout'
+    env(ROUTE_AFTER_REDIRECT): 'homepage'
+    env(IDENTITY_SERVER_URL_INTERNAL): 'https://peekabooauth.com'
+    env(PEEKABOO_APPLICATION_NAME): 'dev'
+    #env(PEEKABOO_APPLICATION_SECRET): ''
+
 services:
     _defaults:
         autowire: true
@@ -21,13 +30,13 @@ services:
 
     Peekabooauth\PeekabooBundle\Security\PeekabooAuthenticator:
         public: true
-    
+
     Peekabooauth\PeekabooBundle\Security\ApiPeekabooAuthenticator:
         public: true
 
     Peekabooauth\PeekabooBundle\UserProvider\UserProvider:
         public: true
-    
+
     Peekabooauth\PeekabooBundle\UserProvider\ApiUserProvider:
         public: true
 
