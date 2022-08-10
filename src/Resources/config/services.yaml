@@ -28,20 +28,11 @@ services:
         tags:
             - { name: controller.request_value_resolver, priority: 255 }
 
-    Peekabooauth\PeekabooBundle\Security\PeekabooAuthenticator:
-        public: true
-
-    Peekabooauth\PeekabooBundle\Security\ApiPeekabooAuthenticator:
-        public: true
-
-    Peekabooauth\PeekabooBundle\UserProvider\UserProvider:
-        public: true
-
-    Peekabooauth\PeekabooBundle\UserProvider\ApiUserProvider:
-        public: true
-
-    Peekabooauth\PeekabooBundle\Services\TargetBuilder:
-        public: true
+    Peekabooauth\PeekabooBundle\Security\PeekabooAuthenticator: {public: true}
+    Peekabooauth\PeekabooBundle\Security\ApiPeekabooAuthenticator: {public: true}
+    Peekabooauth\PeekabooBundle\UserProvider\UserProvider: {public: true}
+    Peekabooauth\PeekabooBundle\UserProvider\ApiUserProvider: {public: true}
+    Peekabooauth\PeekabooBundle\Services\TargetBuilder: {public: true}
 
     Peekabooauth\PeekabooBundle\Services\AuthRedirectBuilder:
         bind:
