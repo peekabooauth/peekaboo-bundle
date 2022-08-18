@@ -14,7 +14,7 @@ class Client
 
     public function __construct(
         string $identityServerUrlInternal,
-        private string $app
+        private readonly string $app,
     ) {
         $options['base_uri'] = $identityServerUrlInternal;
         $options['headers']['Content-Type'] = 'application/json';

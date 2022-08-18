@@ -12,8 +12,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class LogoutController extends AbstractController
 {
     public function __construct(
-        private TokenStorage $tokenStorage,
-        private AuthRedirectBuilder $authRedirectBuilder
+        private readonly TokenStorage $tokenStorage,
+        private readonly AuthRedirectBuilder $authRedirectBuilder,
     ) {
     }
 

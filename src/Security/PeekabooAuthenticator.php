@@ -21,9 +21,9 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 class PeekabooAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
     public function __construct(
-        private RouterInterface $router,
-        private UserProvider $userProvider,
-        private TokenStorage $tokenStorage
+        private readonly RouterInterface $router,
+        private readonly UserProvider $userProvider,
+        private readonly TokenStorage $tokenStorage,
     ) {
     }
 

@@ -9,13 +9,13 @@ use Symfony\Component\Routing\RouterInterface;
 class AuthRedirectBuilder
 {
     public function __construct(
-        private string $identityServerUrlExternal,
-        private string $identityServerAuthPath,
-        private string $identityServerLogoutPath,
-        private string $routeAfterRedirect,
-        private string $app,
-        private string $secret,
-        private RouterInterface $router
+        private readonly string $identityServerUrlExternal,
+        private readonly string $identityServerAuthPath,
+        private readonly string $identityServerLogoutPath,
+        private readonly string $routeAfterRedirect,
+        private readonly string $app,
+        private readonly string $secret,
+        private readonly RouterInterface $router,
     ){
     }
 
@@ -24,7 +24,7 @@ class AuthRedirectBuilder
         $identityRequestDTO = new IdentityRequestDTO([
             'redirect_url' => $this->router->generate('peekaboo_auth', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'app' => $this->app,
-            'secret' => $this->secret
+            'secret' => $this->secret,
         ]);
 
         return $this->identityServerUrlExternal .

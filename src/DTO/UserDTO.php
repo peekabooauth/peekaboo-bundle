@@ -7,7 +7,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class UserDTO implements UserInterface, \JsonSerializable
 {
     public string $email;
-    
+
     public string $name;
 
     public array $roles = [];
@@ -41,7 +41,7 @@ class UserDTO implements UserInterface, \JsonSerializable
         return [
             'email' => $this->email,
             'roles' => $this->roles,
-            'name' => $this->name
+            'name' => $this->name,
         ];
     }
 }

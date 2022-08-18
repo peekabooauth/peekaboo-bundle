@@ -11,17 +11,14 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class IdentityRequestResolver implements ArgumentValueResolverInterface
 {
-    public function __construct(private ValidatorInterface $validator)
-    {
+    public function __construct(
+        private readonly ValidatorInterface $validator,
+    ) {
     }
 
     public function supports(Request $request, ArgumentMetadata $argument): bool
     {
-        if ($argument->getType() === IdentityRequestDTO::class) {
-            return true;
-        }
-
-        return false;
+        return $argument->getType() === IdentityRequestDTO::class;
     }
 
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
@@ -29,7 +26,7 @@ class IdentityRequestResolver implements ArgumentValueResolverInterface
         $identityRequestDTO = new IdentityRequestDTO($request->query->all());
         $errors = $this->validator->validate($identityRequestDTO);
         if (count($errors) > 0) {
-            throw new BadRequestHttpException((string) $errors);
+            throw new BadRequestHttpException((string)$errors);
         }
 
         yield $identityRequestDTO;

@@ -27,7 +27,7 @@ class IdentityRequestDTO implements \JsonSerializable
         return [
             'redirect_url' => $this->redirectUrl,
             'app' => $this->app,
-            'secret' => $this->secret
+            'secret' => $this->secret,
         ];
     }
 }

@@ -18,8 +18,9 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 
 class ApiPeekabooAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
-    public function __construct(private ApiUserProvider $userProvider)
-    {
+    public function __construct(
+        private readonly ApiUserProvider $userProvider,
+    ) {
     }
 
     public function supports(Request $request): bool
@@ -34,7 +35,6 @@ class ApiPeekabooAuthenticator extends AbstractAuthenticator implements Authenti
         $user = $this->userProvider->loadUserByIdentifier($token);
 
         return new SelfValidatingPassport(new UserBadge($token));
-
     }
 
     public function createToken(Passport $passport, string $firewallName): TokenInterface

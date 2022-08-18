@@ -3,7 +3,6 @@
 namespace Peekabooauth\PeekabooBundle\Listener;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
 class LogoutListener
@@ -12,9 +11,8 @@ class LogoutListener
     {
         $request = $logoutEvent->getRequest();
         if ($request->get('redirect_url')) {
-            $logoutEvent->setResponse(new RedirectResponse(
-                $request->get('redirect_url'),
-                Response::HTTP_MOVED_PERMANENTLY)
+            $logoutEvent->setResponse(
+                new RedirectResponse($request->get('redirect_url'))
             );
         }
     }
