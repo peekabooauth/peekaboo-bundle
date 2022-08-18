@@ -26,6 +26,6 @@ class AuthController extends AbstractController
             return new RedirectResponse($this->targetBuilder->getTargetUrl());
         }
 
-        return new RedirectResponse($this->authRedirectBuilder->getRerirectIdentityUrl());
+        return new RedirectResponse($this->authRedirectBuilder->getRedirectIdentityUrl());
     }
 }

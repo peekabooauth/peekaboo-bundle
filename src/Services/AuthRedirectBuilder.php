@@ -19,7 +19,7 @@ class AuthRedirectBuilder
     ){
     }
 
-    public function getRerirectIdentityUrl(): string
+    public function getRedirectIdentityUrl(): string
     {
         $identityRequestDTO = new IdentityRequestDTO([
             'redirect_url' => $this->router->generate('peekaboo_auth', [], UrlGeneratorInterface::ABSOLUTE_URL),
