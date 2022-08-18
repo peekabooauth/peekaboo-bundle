@@ -3,30 +3,36 @@
 namespace Peekabooauth\PeekabooBundle\Services;
 
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Http\FirewallMapInterface;
 
 class TargetBuilder
 {
-    private SessionInterface $session;
+    private const DEFAULT_FIREWALL_NAME = 'peekaboo';
 
-    public function __construct(private RequestStack $requestStack, private FirewallMapInterface $firewallMap)
-    {
-        $this->session = $requestStack->getSession();
+    public function __construct(
+        private readonly RequestStack $requestStack,
+        private readonly FirewallMapInterface $firewallMap,
+    ) {
     }
 
     public function getTargetUrl(): string
     {
         $request = $this->requestStack->getCurrentRequest();
 
-        $firewallConfig = $this->firewallMap->getFirewallConfig($request);
+        $session = $this->requestStack->getSession();
 
-        if ($firewallConfig === null) {
-            return '/';
+        $firewallName = null;
+        try {
+            if (method_exists($this->firewallMap, 'getFirewallConfig')) {
+                $firewallConfig = $this->firewallMap->getFirewallConfig($request);
+                $firewallName = $firewallConfig->getName();
+            }
+        } catch (\Throwable) {
+        }
+        if (!$firewallName) {
+            $firewallName = self::DEFAULT_FIREWALL_NAME;
         }
 
-        $firewallName = $firewallConfig->getName();
-
-        return $this->session->get('_security.' . $firewallName . '.target_path', '/');
+        return $session->get('_security.'.$firewallName.'.target_path', '/');
     }
 }
