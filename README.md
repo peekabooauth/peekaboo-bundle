@@ -31,16 +31,16 @@ providers:
         id: Peekabooauth\PeekabooBundle\UserProvider\ApiUserProvider
 #......
 firewalls:
-    peekaboo:
-        pattern: ^/
-        custom_authenticators:
-            - Peekabooauth\PeekabooBundle\Security\PeekabooAuthenticator
-        provider: peekaboo_user_provider
     api:
         pattern: ^/api
         custom_authenticators:
             - Peekabooauth\PeekabooBundle\Security\ApiPeekabooAuthenticator
         provider: api_peekaboo_user_provider
+    peekaboo:
+        pattern: ^/
+        custom_authenticators:
+            - Peekabooauth\PeekabooBundle\Security\PeekabooAuthenticator
+        provider: peekaboo_user_provider
 #.......
 access_control:
     - { path: ^/peekaboo/auth, roles: PUBLIC_ACCESS }
