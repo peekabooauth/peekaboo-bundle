@@ -14,7 +14,11 @@ class TokenStorage
         private readonly RequestStack $requestStack,
         private readonly string $tokenName,
     ) {
-        $this->session = $this->requestStack?->getSession() ?? new Session();
+        try {
+            $this->session = $this->requestStack?->getSession() ?? new Session();
+        } catch (\Throwable) {
+            $this->session = new Session();
+        }
     }
 
     public function storageToken(): bool
