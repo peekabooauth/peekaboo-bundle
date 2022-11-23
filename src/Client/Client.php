@@ -5,6 +5,7 @@ namespace Peekabooauth\PeekabooBundle\Client;
 use Peekabooauth\PeekabooBundle\DTO\UserDTO;
 use GuzzleHttp\Client as BaseClient;
 use GuzzleHttp\Psr7\Request;
+use Throwable;
 
 class Client
 {
@@ -22,14 +23,18 @@ class Client
         $this->client = new BaseClient($options);
     }
 
+    /** @throws Throwable */
     public function getUser(string $token): UserDTO
     {
         $request = new Request(
-            'POST',
-            sprintf(self::GET_USER_PATH, $this->app) . '?bearer=' . $token
+            method: 'POST',
+            uri: sprintf(self::GET_USER_PATH, $this->app),
+            headers: [
+                'Authorization: Bearer ' . $token,
+            ]
         );
         $response = $this->client->send($request);
 
-        return new UserDTO(json_decode((string)$response->getBody(), true));
+        return new UserDTO(json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR));
     }
 }

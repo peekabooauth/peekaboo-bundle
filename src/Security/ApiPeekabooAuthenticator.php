@@ -52,9 +52,17 @@ class ApiPeekabooAuthenticator extends AbstractAuthenticator implements Authenti
         return new Response('Bad auth', 403);
     }
 
-    private function getToken(Request $request): ?string
+    private function getToken(Request $request): string
     {
-        return $request->headers->get('Authorization', false);
+        $result = $request->headers->get('Authorization', '');
+        if ($result === '') {
+            $result = $request->query->get('bearer', '');
+        }
+        if ($result === '') {
+            $result = $request->request->get('bearer', '');
+        }
+
+        return $result;
     }
 
     public function start(Request $request, AuthenticationException $authException = null): Response
