@@ -28,11 +28,15 @@ class Client
     {
         $request = new Request(
             method: 'POST',
-            uri: sprintf(self::GET_USER_PATH, $this->app),
-            headers: [
-                'Authorization: Bearer ' . $token,
-            ]
+            uri: sprintf(self::GET_USER_PATH, $this->app) . '?bearer=' . $token
         );
+        //$request = new Request(
+        //    method: 'POST',
+        //    uri: sprintf(self::GET_USER_PATH, $this->app),
+        //    headers: [
+        //        'Authorization: Bearer ' . $token,
+        //    ]
+        //);
         $response = $this->client->send($request);
 
         return new UserDTO(json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR));
