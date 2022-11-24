@@ -27,15 +27,8 @@ Add to `config/packages/security.yaml`
 providers:
     peekaboo_user_provider:
         id: Peekabooauth\PeekabooBundle\UserProvider\UserProvider
-    api_peekaboo_user_provider:
-        id: Peekabooauth\PeekabooBundle\UserProvider\ApiUserProvider
 #......
 firewalls:
-    api:
-        pattern: ^/api
-        custom_authenticators:
-            - Peekabooauth\PeekabooBundle\Security\ApiPeekabooAuthenticator
-        provider: api_peekaboo_user_provider
     peekaboo:
         pattern: ^/
         custom_authenticators:
