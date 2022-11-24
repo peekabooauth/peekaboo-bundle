@@ -5,6 +5,8 @@ namespace Peekabooauth\PeekabooBundle\Security;
 use Peekabooauth\PeekabooBundle\DTO\UserDTO;
 use Peekabooauth\PeekabooBundle\Services\TokenStorage;
 use Peekabooauth\PeekabooBundle\UserProvider\UserProvider;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +26,7 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
         private readonly RouterInterface $router,
         private readonly UserProvider $userProvider,
         private readonly TokenStorage $tokenStorage,
+        private readonly LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
@@ -72,7 +75,9 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
         if ($this->isApiAuth($request)) {
-            return new Response('Bad auth: ' . $exception->getTraceAsString(), 403);
+            $this->logger->warning('peekaboo_bad_auth', ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
+
+            return new Response('Bad auth', 403);
         }
 
         $this->tokenStorage->clearToken();
