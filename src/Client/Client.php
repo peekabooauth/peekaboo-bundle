@@ -3,42 +3,47 @@
 namespace Peekabooauth\PeekabooBundle\Client;
 
 use Peekabooauth\PeekabooBundle\DTO\UserDTO;
-use GuzzleHttp\Client as BaseClient;
-use GuzzleHttp\Psr7\Request;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 
 class Client
 {
-    private const GET_USER_PATH = '/api/user/%s';
-
-    private BaseClient $client;
+    private string $url;
 
     public function __construct(
         string $identityServerUrlInternal,
-        private readonly string $app,
+        string $app,
+        private readonly HttpClientInterface $httpClient,
+        private readonly LoggerInterface $logger = new NullLogger(),
     ) {
-        $options['base_uri'] = $identityServerUrlInternal;
-        $options['headers']['Content-Type'] = 'application/json';
-
-        $this->client = new BaseClient($options);
+        $this->url = sprintf('%s/api/user/%s', rtrim($identityServerUrlInternal, '/'), $app);
     }
 
     /** @throws Throwable */
     public function getUser(string $token): UserDTO
     {
-        $request = new Request(
-            method: 'POST',
-            uri: sprintf(self::GET_USER_PATH, $this->app) . '?bearer=' . $token
+        $response = $this->httpClient->request(
+            method: Request::METHOD_POST,
+            url: $this->url,
+            options: [
+                'auth_bearer' => $token,
+                'headers' => [
+                    'content-type' => 'application/json',
+                ]
+            ]
         );
-        //$request = new Request(
-        //    method: 'POST',
-        //    uri: sprintf(self::GET_USER_PATH, $this->app),
-        //    headers: [
-        //        'Authorization: Bearer ' . $token,
-        //    ]
-        //);
-        $response = $this->client->send($request);
 
-        return new UserDTO(json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR));
+        $statusCode = $response->getStatusCode();
+        if ($statusCode !== Response::HTTP_OK) {
+            $this->logger->error('peekaboo_auth_error', ['status_code' => $statusCode, 'content' => mb_substr($response->getContent(false), 300)]);
+
+            throw new \RuntimeException('peekaboo_auth_error');
+        }
+
+        return new UserDTO($response->toArray());
     }
 }

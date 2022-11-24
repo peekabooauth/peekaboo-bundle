@@ -13,8 +13,9 @@
     "require": {
         "php": ">=8.1",
         "ext-json": "*",
-        "guzzlehttp/guzzle": "^7.4",
+        "psr/log": "^3.0",
         "symfony/framework-bundle": "^6.1",
+        "symfony/http-client": "^6.1",
         "symfony/http-foundation": "^6.1",
         "symfony/http-kernel": "^6.1",
         "symfony/routing": "^6.1",
