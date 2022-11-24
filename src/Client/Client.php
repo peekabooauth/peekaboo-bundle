@@ -33,13 +33,12 @@ class Client
                 'auth_bearer' => $token,
                 'headers' => [
                     'content-type' => 'application/json',
-                ]
+                ],
             ]
         );
-
         $statusCode = $response->getStatusCode();
         if ($statusCode !== Response::HTTP_OK) {
-            $this->logger->error('peekaboo_auth_error', ['status_code' => $statusCode, 'content' => mb_substr($response->getContent(false), 300)]);
+            $this->logger->error('peekaboo_auth_error', ['status_code' => $statusCode, 'content' => mb_substr($response->getContent(false), 0, 300)]);
 
             throw new \RuntimeException('peekaboo_auth_error');
         }

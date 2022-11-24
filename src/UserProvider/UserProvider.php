@@ -5,6 +5,8 @@ namespace Peekabooauth\PeekabooBundle\UserProvider;
 use Peekabooauth\PeekabooBundle\Client\Client;
 use Peekabooauth\PeekabooBundle\DTO\UserDTO;
 use Peekabooauth\PeekabooBundle\Services\TokenStorage;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -13,20 +15,20 @@ use Throwable;
 
 class UserProvider implements UserProviderInterface
 {
+    private Request $request;
+
     public function __construct(
         private Client $client,
-        private TokenStorage $tokenStorage
+        private TokenStorage $tokenStorage,
+        RequestStack $requestStack,
     ) {
+        $this->request = $requestStack->getCurrentRequest();
     }
 
     public function refreshUser(UserInterface $user): UserInterface
     {
         if (!$user instanceof UserDTO) {
             throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', get_debug_type($user)));
-        }
-        
-        if ($this->tokenStorage->getToken() === null) {
-            throw new UserNotFoundException('User not found.');  
         }
 
         return $this->getUser();
@@ -44,7 +46,12 @@ class UserProvider implements UserProviderInterface
 
     private function getUser(): UserInterface
     {
-        $token = $this->tokenStorage->getToken();
+        if ($this->isApiAuth()) {
+            $token = $this->getToken();
+        } else {
+            $token = $this->tokenStorage->getToken();
+        }
+
         if (!$token) {
             throw new UserNotFoundException('User not found.');
         }
@@ -57,5 +64,26 @@ class UserProvider implements UserProviderInterface
         }
 
         return $user;
+    }
+
+    private function getToken(): string
+    {
+        $result = $this->request->headers->get('Authorization', '');
+        if ($result === '') {
+            $result = $this->request->query->get('bearer', '');
+        }
+        if ($result === '') {
+            $result = $this->request->request->get('bearer', '');
+        }
+
+        return $result;
+    }
+
+    private function isApiAuth(): bool
+    {
+        return
+            $this->request->headers->get('Authorization', '') !== '' ||
+            $this->request->query->get('bearer', '') !== '' ||
+            $this->request->request->get('bearer', '') !== '';
     }
 }

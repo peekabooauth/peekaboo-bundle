@@ -4,7 +4,6 @@ namespace Peekabooauth\PeekabooBundle\Security;
 
 use Peekabooauth\PeekabooBundle\DTO\UserDTO;
 use Peekabooauth\PeekabooBundle\Services\TokenStorage;
-use Peekabooauth\PeekabooBundle\UserProvider\ApiUserProvider;
 use Peekabooauth\PeekabooBundle\UserProvider\UserProvider;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +23,6 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
     public function __construct(
         private readonly RouterInterface $router,
         private readonly UserProvider $userProvider,
-        private readonly ApiUserProvider $apiUserProvider,
         private readonly TokenStorage $tokenStorage,
     ) {
     }
@@ -46,16 +44,19 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
     {
         if ($this->isApiAuth($request)) {
             $token = $this->getToken($request);
-            $userProvider = $this->apiUserProvider;
+            $identifier = null;
         } else {
             $token = $this->tokenStorage->getToken();
-            $userProvider = $this->userProvider;
+            $identifier = $token;
         }
 
         /** @var UserDTO $user */
-        $user = $userProvider->loadUserByIdentifier($token);
+        $user = $this->userProvider->loadUserByIdentifier($token);
+        if ($identifier === null) {
+            $identifier = $user->email;
+        }
 
-        return new SelfValidatingPassport(new UserBadge($user->email));
+        return new SelfValidatingPassport(new UserBadge($identifier));
     }
 
     public function createToken(Passport $passport, string $firewallName): TokenInterface
@@ -71,7 +72,7 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
         if ($this->isApiAuth($request)) {
-            return new Response('Bad auth', 403);
+            return new Response('Bad auth: ' . $exception->getTraceAsString(), 403);
         }
 
         $this->tokenStorage->clearToken();
