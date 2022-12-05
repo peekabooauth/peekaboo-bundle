@@ -3,7 +3,7 @@
 namespace Peekabooauth\PeekabooBundle\Security;
 
 use Peekabooauth\PeekabooBundle\DTO\UserDTO;
-use Peekabooauth\PeekabooBundle\Services\TokenStorage;
+use Peekabooauth\PeekabooBundle\UserLoader\UserLoaderRegistry;
 use Peekabooauth\PeekabooBundle\UserProvider\UserProvider;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -25,7 +25,7 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
     public function __construct(
         private readonly RouterInterface $router,
         private readonly UserProvider $userProvider,
-        private readonly TokenStorage $tokenStorage,
+        private readonly UserLoaderRegistry $userLoaderRegistry,
         private readonly LoggerInterface $logger = new NullLogger(),
     ) {
     }
@@ -37,29 +37,15 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
 
     public function supports(Request $request): bool
     {
-        return (
-            ($this->tokenStorage->getToken() ?? '') !== '' ||
-            $this->getToken($request) !== ''
-        );
+        return $this->userLoaderRegistry->isAuth();
     }
 
     public function authenticate(Request $request): Passport
     {
-        if ($this->isApiAuth($request)) {
-            $token = $this->getToken($request);
-            $identifier = null;
-        } else {
-            $token = $this->tokenStorage->getToken();
-            $identifier = $token;
-        }
-
         /** @var UserDTO $user */
-        $user = $this->userProvider->loadUserByIdentifier($token);
-        if ($identifier === null) {
-            $identifier = $user->email;
-        }
+        $user = $this->userProvider->loadUserByIdentifier();
 
-        return new SelfValidatingPassport(new UserBadge($identifier));
+        return new SelfValidatingPassport(new UserBadge($user->email));
     }
 
     public function createToken(Passport $passport, string $firewallName): TokenInterface
@@ -74,44 +60,23 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
-        if ($this->isApiAuth($request)) {
+        if ($this->userLoaderRegistry->isApiAuth()) {
             $this->logger->warning('peekaboo_bad_auth', ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
 
             return new Response('Bad auth', 403);
         }
 
-        $this->tokenStorage->clearToken();
+        $this->userLoaderRegistry->clearTokenStorageUser();
 
         return new RedirectResponse($this->getLoginUrl($request));
     }
 
     public function start(Request $request, AuthenticationException $authException = null): Response
     {
-        if ($this->isApiAuth($request)) {
+        if ($this->userLoaderRegistry->isApiAuth()) {
             return new Response('Need auth', 401);
         }
 
         return new RedirectResponse($this->getLoginUrl($request));
-    }
-
-    private function getToken(Request $request): string
-    {
-        $result = $request->headers->get('Authorization', '');
-        if ($result === '') {
-            $result = $request->query->get('bearer', '');
-        }
-        if ($result === '') {
-            $result = $request->request->get('bearer', '');
-        }
-
-        return $result;
-    }
-
-    private function isApiAuth(Request $request): bool
-    {
-        return
-            $request->headers->get('Authorization', '') !== '' ||
-            $request->query->get('bearer', '') !== '' ||
-            $request->request->get('bearer', '') !== '';
     }
 }

@@ -31,6 +31,26 @@ services:
     Peekabooauth\PeekabooBundle\Security\PeekabooAuthenticator: {public: true}
     Peekabooauth\PeekabooBundle\UserProvider\UserProvider: {public: true}
     Peekabooauth\PeekabooBundle\Services\TargetBuilder: {public: true}
+    Peekabooauth\PeekabooBundle\UserLoader\ApiKeyUserLoader:
+        tags:
+            - { name: 'peekaboo.user.loader', alias: 'apiKey' }
+
+    Peekabooauth\PeekabooBundle\UserLoader\JwtTokenUserLoader:
+        tags:
+            - { name: 'peekaboo.user.loader', alias: 'jwtToken' }
+
+    Peekabooauth\PeekabooBundle\UserLoader\TokenStorageUserLoader:
+        tags:
+            - { name: 'peekaboo.user.loader', alias: 'tokenStorage' }
+
+    Peekabooauth\PeekabooBundle\UserLoader\UserLoaderRegistry:
+        arguments:
+            - !tagged_iterator { tag: 'peekaboo.user.loader', index_by: 'alias' }
+        bind:
+            $priority:
+                - 'jwtToken'
+                - 'apiKey'
+                - 'tokenStorage'
 
     Peekabooauth\PeekabooBundle\Services\AuthRedirectBuilder:
         bind:
