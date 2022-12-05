@@ -12,7 +12,8 @@ use Throwable;
 
 class Client
 {
-    private string $url;
+    private string $urlJwt;
+    private string $urlApiKey;
 
     public function __construct(
         string $identityServerUrlInternal,
@@ -20,21 +21,43 @@ class Client
         private readonly HttpClientInterface $httpClient,
         private readonly LoggerInterface $logger = new NullLogger(),
     ) {
-        $this->url = sprintf('%s/api/user/%s', rtrim($identityServerUrlInternal, '/'), $app);
+        $this->urlJwt = sprintf('%s/api/user/%s', rtrim($identityServerUrlInternal, '/'), $app);
+        $this->urlApiKey = sprintf('%s/api/user-by-key', rtrim($identityServerUrlInternal, '/'));
     }
 
     /** @throws Throwable */
-    public function getUser(string $token): UserDTO
+    public function getUserByApiKey(string $apiKey): UserDTO
+    {
+        $options = [
+            'headers' => [
+                'content-type' => 'application/json',
+                'x-api-key' => $apiKey
+            ],
+        ];
+
+        return $this->getUser($options, $this->urlApiKey);
+    }
+
+    /** @throws Throwable */
+    public function getUserByJwt(string $token): UserDTO
+    {
+        $options = [
+            'auth_bearer' => $token,
+            'headers' => [
+                'content-type' => 'application/json',
+            ],
+        ];
+
+        return $this->getUser($options, $this->urlJwt);
+    }
+
+    /** @throws Throwable */
+    private function getUser(array $options, string $url): UserDTO
     {
         $response = $this->httpClient->request(
             method: Request::METHOD_POST,
-            url: $this->url,
-            options: [
-                'auth_bearer' => $token,
-                'headers' => [
-                    'content-type' => 'application/json',
-                ],
-            ]
+            url: $url,
+            options: $options
         );
         $statusCode = $response->getStatusCode();
         if ($statusCode !== Response::HTTP_OK) {
