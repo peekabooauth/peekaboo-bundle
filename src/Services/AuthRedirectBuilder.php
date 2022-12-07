@@ -16,16 +16,24 @@ class AuthRedirectBuilder
         private readonly string $app,
         private readonly string $secret,
         private readonly RouterInterface $router,
+        private readonly Signature $signature,
     ){
     }
 
     public function getRedirectIdentityUrl(): string
     {
-        $identityRequestDTO = new IdentityRequestDTO([
-            'redirect_url' => $this->router->generate('peekaboo_auth', [], UrlGeneratorInterface::ABSOLUTE_URL),
+        $data = [
+            'redirect_url' => $this->router->generate(
+                'peekaboo_auth',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            ),
             'app' => $this->app,
-            'secret' => $this->secret,
-        ]);
+        ];
+
+        $data['signature'] = $this->signature->generateSignature($data, $this->secret);
+
+        $identityRequestDTO = new IdentityRequestDTO($data);
 
         return $this->identityServerUrlExternal .
             $this->identityServerAuthPath .

@@ -23,6 +23,7 @@ services:
         bind:
             $identityServerUrlInternal: '%env(IDENTITY_SERVER_URL_INTERNAL)%'
             $app: '%env(PEEKABOO_APPLICATION_NAME)%'
+            $secret: '%env(PEEKABOO_APPLICATION_SECRET)%'
 
     Peekabooauth\PeekabooBundle\ArgumentResolver\IdentityRequestResolver:
         tags:
@@ -31,6 +32,7 @@ services:
     Peekabooauth\PeekabooBundle\Security\PeekabooAuthenticator: {public: true}
     Peekabooauth\PeekabooBundle\UserProvider\UserProvider: {public: true}
     Peekabooauth\PeekabooBundle\Services\TargetBuilder: {public: true}
+    Peekabooauth\PeekabooBundle\Services\Signature: {public: true}
     Peekabooauth\PeekabooBundle\UserLoader\ApiKeyUserLoader:
         tags:
             - { name: 'peekaboo.user.loader', alias: 'apiKey' }

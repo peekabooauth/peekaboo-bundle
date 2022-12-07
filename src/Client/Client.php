@@ -3,6 +3,7 @@
 namespace Peekabooauth\PeekabooBundle\Client;
 
 use Peekabooauth\PeekabooBundle\DTO\UserDTO;
+use Peekabooauth\PeekabooBundle\Services\Signature;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,17 +13,14 @@ use Throwable;
 
 class Client
 {
-    private string $urlJwt;
-    private string $urlApiKey;
-
     public function __construct(
-        string $identityServerUrlInternal,
-        string $app,
+        private readonly string $identityServerUrlInternal,
+        private readonly string $app,
+        private readonly string $secret,
         private readonly HttpClientInterface $httpClient,
+        private readonly Signature $signature,
         private readonly LoggerInterface $logger = new NullLogger(),
     ) {
-        $this->urlJwt = sprintf('%s/api/user/%s', rtrim($identityServerUrlInternal, '/'), $app);
-        $this->urlApiKey = sprintf('%s/api/user-by-key', rtrim($identityServerUrlInternal, '/'));
     }
 
     /** @throws Throwable */
@@ -35,7 +33,12 @@ class Client
             ],
         ];
 
-        return $this->getUser($options, $this->urlApiKey);
+        $urlApiKey = sprintf(
+            '%s/api/user-by-key',
+            rtrim($this->identityServerUrlInternal, '/')
+        );
+
+        return $this->getUser($options, $urlApiKey);
     }
 
     /** @throws Throwable */
@@ -48,7 +51,13 @@ class Client
             ],
         ];
 
-        return $this->getUser($options, $this->urlJwt);
+        $urlJwt = sprintf(
+            '%s/api/user/%s',
+            rtrim($this->identityServerUrlInternal, '/'),
+            $this->app
+        ) . '?signature=' . $this->signature->generateSignature([$this->app], $this->secret);
+
+        return $this->getUser($options, $urlJwt);
     }
 
     /** @throws Throwable */
