@@ -5,6 +5,7 @@ namespace Peekabooauth\PeekabooBundle\Services;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Throwable;
 
 class TokenStorage
 {
@@ -16,7 +17,7 @@ class TokenStorage
     ) {
         try {
             $this->session = $this->requestStack?->getSession() ?? new Session();
-        } catch (\Throwable) {
+        } catch (Throwable) {
             $this->session = new Session();
         }
     }

@@ -2,9 +2,10 @@
 
 namespace Peekabooauth\PeekabooBundle\DTO;
 
+use JsonSerializable;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class IdentityRequestDTO implements \JsonSerializable
+class IdentityRequestDTO implements JsonSerializable
 {
     #[Assert\NotBlank(message: 'Field name can not be empty')]
     public ?string $redirectUrl = null;

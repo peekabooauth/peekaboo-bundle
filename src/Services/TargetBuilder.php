@@ -4,6 +4,7 @@ namespace Peekabooauth\PeekabooBundle\Services;
 
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Http\FirewallMapInterface;
+use Throwable;
 
 class TargetBuilder
 {
@@ -27,7 +28,7 @@ class TargetBuilder
                 $firewallConfig = $this->firewallMap->getFirewallConfig($request);
                 $firewallName = $firewallConfig->getName();
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
         }
         if (!$firewallName) {
             $firewallName = self::DEFAULT_FIREWALL_NAME;

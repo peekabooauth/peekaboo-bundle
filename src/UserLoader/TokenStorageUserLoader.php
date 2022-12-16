@@ -8,6 +8,7 @@ use Peekabooauth\PeekabooBundle\Services\TokenStorage;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Throwable;
 
 class TokenStorageUserLoader implements TokenStorageUserLoaderInterface
 {
@@ -20,7 +21,7 @@ class TokenStorageUserLoader implements TokenStorageUserLoaderInterface
 
     /**
      * @return UserDTO
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function loadUser(): UserInterface
     {
@@ -30,7 +31,7 @@ class TokenStorageUserLoader implements TokenStorageUserLoaderInterface
 
                 return $this->client->getUserByJwt($this->tokenStorage->getToken());
             });
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->tokenStorage->clearToken();
 
             throw $e;

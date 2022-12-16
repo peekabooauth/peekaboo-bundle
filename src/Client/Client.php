@@ -6,6 +6,7 @@ use Peekabooauth\PeekabooBundle\DTO\UserDTO;
 use Peekabooauth\PeekabooBundle\Services\Signature;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -72,7 +73,7 @@ class Client
         if ($statusCode !== Response::HTTP_OK) {
             $this->logger->error('peekaboo_auth_error', ['status_code' => $statusCode, 'content' => mb_substr($response->getContent(false), 0, 300)]);
 
-            throw new \RuntimeException('peekaboo_auth_error');
+            throw new RuntimeException('peekaboo_auth_error');
         }
 
         return new UserDTO($response->toArray());

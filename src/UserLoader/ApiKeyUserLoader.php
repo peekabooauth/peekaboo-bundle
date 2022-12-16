@@ -9,22 +9,21 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Throwable;
 
 class ApiKeyUserLoader implements UserLoaderInterface
 {
-    private Request $request;
-
     public function __construct(
         private readonly Client $client,
         private readonly CacheInterface $cache,
-        RequestStack $requestStack
+        private readonly RequestStack $requestStack,
     ) {
-        $this->request = $requestStack->getCurrentRequest();
+
     }
 
     /**
      * @return UserDTO
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function loadUser(): UserInterface
     {
@@ -38,21 +37,26 @@ class ApiKeyUserLoader implements UserLoaderInterface
     public function isAuth(): bool
     {
         return
-            $this->request->headers->get('x-api-key', '') !== '' ||
-            $this->request->query->get('x-api-key', '') !== '' ||
-            $this->request->request->get('x-api-key', '') !== '';
+            $this->getRequest()->headers->get('x-api-key', '') !== '' ||
+            $this->getRequest()->query->get('x-api-key', '') !== '' ||
+            $this->getRequest()->request->get('x-api-key', '') !== '';
     }
 
     private function getApiKey(): string
     {
-        $result = $this->request->headers->get('x-api-key', '');
+        $result = $this->getRequest()->headers->get('x-api-key', '');
         if ($result === '') {
-            $result = $this->request->query->get('x-api-key', '');
+            $result = $this->getRequest()->query->get('x-api-key', '');
         }
         if ($result === '') {
-            $result = $this->request->request->get('x-api-key', '');
+            $result = $this->getRequest()->request->get('x-api-key', '');
         }
 
         return $result;
+    }
+
+    private function getRequest(): Request
+    {
+        return $this->requestStack->getCurrentRequest();
     }
 }

@@ -2,9 +2,10 @@
 
 namespace Peekabooauth\PeekabooBundle\DTO;
 
+use JsonSerializable;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class UserDTO implements UserInterface, \JsonSerializable
+class UserDTO implements UserInterface, JsonSerializable
 {
     public string $email;
 
@@ -27,6 +28,7 @@ class UserDTO implements UserInterface, \JsonSerializable
         return array_unique($roles);
     }
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function eraseCredentials()
     {
     }

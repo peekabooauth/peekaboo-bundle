@@ -9,22 +9,20 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Throwable;
 
 class JwtTokenUserLoader implements UserLoaderInterface
 {
-    private Request $request;
-
     public function __construct(
         private readonly Client $client,
         private readonly CacheInterface $cache,
-        RequestStack $requestStack
+        private readonly RequestStack $requestStack,
     ) {
-        $this->request = $requestStack->getCurrentRequest();
     }
 
     /**
      * @return UserDTO
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function loadUser(): UserInterface
     {
@@ -38,21 +36,26 @@ class JwtTokenUserLoader implements UserLoaderInterface
     public function isAuth(): bool
     {
         return
-            $this->request->headers->get('Authorization', '') !== '' ||
-            $this->request->query->get('bearer', '') !== '' ||
-            $this->request->request->get('bearer', '') !== '';
+            $this->getRequest()->headers->get('Authorization', '') !== '' ||
+            $this->getRequest()->query->get('bearer', '') !== '' ||
+            $this->getRequest()->request->get('bearer', '') !== '';
     }
 
     private function getJwtToken(): string
     {
-        $result = $this->request->headers->get('Authorization', '');
+        $result = $this->getRequest()->headers->get('Authorization', '');
         if ($result === '') {
-            $result = $this->request->query->get('bearer', '');
+            $result = $this->getRequest()->query->get('bearer', '');
         }
         if ($result === '') {
-            $result = $this->request->request->get('bearer', '');
+            $result = $this->getRequest()->request->get('bearer', '');
         }
 
         return $result;
+    }
+
+    private function getRequest(): Request
+    {
+        return $this->requestStack->getCurrentRequest();
     }
 }

@@ -30,6 +30,7 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
     ) {
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     protected function getLoginUrl(Request $request): string
     {
         return $this->router->generate('peekaboo_auth');

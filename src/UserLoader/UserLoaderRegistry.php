@@ -4,6 +4,7 @@ namespace Peekabooauth\PeekabooBundle\UserLoader;
 
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Throwable;
 use Traversable;
 
 class UserLoaderRegistry
@@ -48,7 +49,7 @@ class UserLoaderRegistry
             if ($loader->isAuth()) {
                 try {
                     $user = $loader->loadUser();
-                } catch (\Throwable $e) {
+                } catch (Throwable) {
                     throw new UserNotFoundException('User not found.');
                 }
                 if ($user instanceof UserInterface) {
