@@ -37,6 +37,10 @@ services:
         tags:
             - { name: 'peekaboo.user.loader', alias: 'apiKey' }
 
+    Peekabooauth\PeekabooBundle\UserLoader\BasicAuthUserLoader:
+        tags:
+            - { name: 'peekaboo.user.loader', alias: 'basicAuth' }
+
     Peekabooauth\PeekabooBundle\UserLoader\JwtTokenUserLoader:
         tags:
             - { name: 'peekaboo.user.loader', alias: 'jwtToken' }
@@ -52,6 +56,7 @@ services:
             $priority:
                 - 'jwtToken'
                 - 'apiKey'
+                - 'basicAuth'
                 - 'tokenStorage'
 
     Peekabooauth\PeekabooBundle\Services\AuthRedirectBuilder:
