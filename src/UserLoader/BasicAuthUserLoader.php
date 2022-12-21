@@ -35,16 +35,16 @@ class BasicAuthUserLoader implements UserLoaderInterface
 
     public function isAuth(): bool
     {
-        return $this->getRequest()->server->get('PHP_AUTH_USER', '') !== '';
+        $this->forceBrowserAuthIfNeeded(); // otherwise only cli requests will work but not from browser ui
+
+        return $this->getAuthUsername() !== '';
     }
 
     private function getApiKey(): string
     {
-        $user = $this->getRequest()->server->get('PHP_AUTH_USER');
-        $pass = $this->getRequest()->server->get('PHP_AUTH_PW', '');
-        $apiKey = $user;
-        if ($pass !== '') {
-            $apiKey .= ':' . $pass;
+        $apiKey = $this->getAuthUsername();
+        if ($this->getAuthPassword() !== '') {
+            $apiKey .= ':' . $this->getAuthPassword();
         }
 
         return $apiKey;
@@ -53,5 +53,33 @@ class BasicAuthUserLoader implements UserLoaderInterface
     private function getRequest(): Request
     {
         return $this->requestStack->getCurrentRequest();
+    }
+
+    private function getAuthUsername(): string
+    {
+        return (string)$this->getRequest()->server->get('PHP_AUTH_USER', '');
+    }
+
+    private function getAuthPassword(): string
+    {
+        return (string)$this->getRequest()->server->get('PHP_AUTH_PW', '');
+    }
+
+    private function forceBrowserAuthIfNeeded(): void
+    {
+        if (
+            $this->getAuthUsername() === '' &&
+            $this->isForceBasicAuth()
+        ) {
+            header('WWW-Authenticate: Basic realm="Auth"');
+            header('HTTP/1.0 401 Unauthorized');
+            echo('access denied');
+            exit;
+        }
+    }
+
+    private function isForceBasicAuth(): bool
+    {
+        return $this->getRequest()->query->get('auth', '') === 'basic';
     }
 }
