@@ -36,7 +36,10 @@ class JwtTokenUserLoader implements UserLoaderInterface
     public function isAuth(): bool
     {
         return
-            $this->getRequest()->headers->get('Authorization', '') !== '' ||
+            (
+                $this->getRequest()->headers->get('Authorization', '') !== '' &&
+                !str_starts_with($this->getRequest()->headers->get('Authorization', ''), 'Basic ')
+            ) ||
             $this->getRequest()->query->get('bearer', '') !== '' ||
             $this->getRequest()->request->get('bearer', '') !== '';
     }

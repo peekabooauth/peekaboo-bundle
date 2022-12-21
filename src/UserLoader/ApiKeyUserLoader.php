@@ -18,7 +18,6 @@ class ApiKeyUserLoader implements UserLoaderInterface
         private readonly CacheInterface $cache,
         private readonly RequestStack $requestStack,
     ) {
-
     }
 
     /**
@@ -27,7 +26,7 @@ class ApiKeyUserLoader implements UserLoaderInterface
      */
     public function loadUser(): UserInterface
     {
-        return $this->cache->get(md5($this->getApiKey() . __CLASS__), function (ItemInterface $item) {
+        return $this->cache->get(md5($this->getApiKey().__CLASS__), function (ItemInterface $item) {
             $item->expiresAfter(300);
 
             return $this->client->getUserByApiKey($this->getApiKey());
