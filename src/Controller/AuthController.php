@@ -22,10 +22,12 @@ class AuthController extends AbstractController
     #[Route(path: '/peekaboo/auth', name: 'peekaboo_auth')]
     public function auth(): Response
     {
-        if ($this->tokenStorage->storageToken()) {
-            return new RedirectResponse($this->targetBuilder->getTargetUrl());
+        $response = new RedirectResponse($this->targetBuilder->getTargetUrl());
+        $token = $this->tokenStorage->storageToken($response);
+        if (!$token) {
+            $response->setTargetUrl($this->authRedirectBuilder->getRedirectIdentityUrl());
         }
 
-        return new RedirectResponse($this->authRedirectBuilder->getRedirectIdentityUrl());
+        return $response;
     }
 }

@@ -27,7 +27,7 @@ class BasicAuthUserLoader implements UserLoaderInterface
     public function loadUser(): UserInterface
     {
         return $this->cache->get(md5($this->getApiKey() . __CLASS__), function (ItemInterface $item) {
-            $item->expiresAfter(300);
+            $item->expiresAfter(600);
 
             return $this->client->getUserByApiKey($this->getApiKey());
         });

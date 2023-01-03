@@ -27,7 +27,7 @@ class JwtTokenUserLoader implements UserLoaderInterface
     public function loadUser(): UserInterface
     {
         return $this->cache->get(md5($this->getJwtToken() . __CLASS__), function (ItemInterface $item) {
-            $item->expiresAfter(300);
+            $item->expiresAfter(600);
 
             return $this->client->getUserByJwt($this->getJwtToken());
         });

@@ -27,7 +27,7 @@ class TokenStorageUserLoader implements TokenStorageUserLoaderInterface
     {
         try {
             return $this->cache->get(md5($this->tokenStorage->getToken() . __CLASS__), function (ItemInterface $item) {
-                $item->expiresAfter(300);
+                $item->expiresAfter(600);
 
                 return $this->client->getUserByJwt($this->tokenStorage->getToken());
             });

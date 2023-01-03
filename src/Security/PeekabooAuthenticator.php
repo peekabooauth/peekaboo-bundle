@@ -62,11 +62,12 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
         if ($this->userLoaderRegistry->isApiAuth()) {
-            $this->logger->warning('peekaboo_bad_auth', ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
+            $this->logger->warning('peekaboo_bad_auth_api', ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
 
             return new Response('Bad auth', 403);
         }
 
+        $this->logger->warning('peekaboo_bad_auth', ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
         $this->userLoaderRegistry->clearTokenStorageUser();
 
         return new RedirectResponse($this->getLoginUrl($request));
