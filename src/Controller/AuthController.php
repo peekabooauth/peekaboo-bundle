@@ -25,6 +25,7 @@ class AuthController extends AbstractController
         $response = new RedirectResponse($this->targetBuilder->getTargetUrl());
         $token = $this->tokenStorage->storageToken($response);
         if (!$token) {
+            $this->tokenStorage->clearToken($response);
             $response->setTargetUrl($this->authRedirectBuilder->getRedirectIdentityUrl());
         }
 

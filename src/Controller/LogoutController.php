@@ -20,8 +20,9 @@ class LogoutController extends AbstractController
     #[Route(path: '/peekaboo/logout', name: 'peekaboo_logout')]
     public function auth(): Response
     {
-        $this->tokenStorage->clearToken();
+        $response = new RedirectResponse($this->authRedirectBuilder->getRedirectIdentityLogoutUrl());
+        $this->tokenStorage->clearToken($response);
 
-        return new RedirectResponse($this->authRedirectBuilder->getRedirectIdentityLogoutUrl());
+        return $response;
     }
 }

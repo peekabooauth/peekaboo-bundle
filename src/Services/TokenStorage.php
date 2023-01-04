@@ -60,8 +60,10 @@ class TokenStorage
         return $this->session->get($this->tokenName) ?: $this->request->cookies->get($this->tokenName);
     }
 
-    public function clearToken(): ?string
+    public function clearToken(?Response $response = null): ?string
     {
+        $response?->headers->clearCookie($this->tokenName);
+
         return $this->session->remove($this->tokenName);
     }
 }
