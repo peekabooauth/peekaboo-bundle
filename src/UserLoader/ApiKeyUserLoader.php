@@ -43,12 +43,17 @@ class ApiKeyUserLoader implements UserLoaderInterface
 
     private function getApiKey(): string
     {
-        $result = $this->getRequest()->headers->get('x-api-key', '');
+        $request = $this->getRequest();
+
+        $result = $request->headers->get('x-api-key', '');
         if ($result === '') {
-            $result = $this->getRequest()->query->get('apikey', '');
+            $result = $request->headers->get('X-Api-Key', '');
         }
         if ($result === '') {
-            $result = $this->getRequest()->request->get('apikey', '');
+            $result = $request->query->get('apikey', '');
+        }
+        if ($result === '') {
+            $result = $request->request->get('apikey', '');
         }
 
         return $result;
