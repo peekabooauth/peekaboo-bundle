@@ -37,18 +37,18 @@ class ApiKeyUserLoader implements UserLoaderInterface
     {
         return
             $this->getRequest()->headers->get('x-api-key', '') !== '' ||
-            $this->getRequest()->query->get('x-api-key', '') !== '' ||
-            $this->getRequest()->request->get('x-api-key', '') !== '';
+            $this->getRequest()->query->get('apikey', '') !== '' ||
+            $this->getRequest()->request->get('apikey', '') !== '';
     }
 
     private function getApiKey(): string
     {
         $result = $this->getRequest()->headers->get('x-api-key', '');
         if ($result === '') {
-            $result = $this->getRequest()->query->get('x-api-key', '');
+            $result = $this->getRequest()->query->get('apikey', '');
         }
         if ($result === '') {
-            $result = $this->getRequest()->request->get('x-api-key', '');
+            $result = $this->getRequest()->request->get('apikey', '');
         }
 
         return $result;
