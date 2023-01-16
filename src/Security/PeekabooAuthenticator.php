@@ -7,6 +7,7 @@ use Peekabooauth\PeekabooBundle\UserLoader\UserLoaderRegistry;
 use Peekabooauth\PeekabooBundle\UserProvider\UserProvider;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -64,7 +65,7 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
         if ($this->userLoaderRegistry->isApiAuth()) {
             $this->logger->warning('peekaboo_bad_auth_api', ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
 
-            return new Response('Bad auth', 403);
+            return $this->createForbiddenResponse($request);
         }
 
         $this->logger->warning('peekaboo_bad_auth', ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
@@ -76,9 +77,35 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
     public function start(Request $request, AuthenticationException $authException = null): Response
     {
         if ($this->userLoaderRegistry->isApiAuth()) {
-            return new Response('Need auth', 401);
+            return $this->createUnauthorizedResponse($request);
         }
 
         return new RedirectResponse($this->getLoginUrl($request));
+    }
+
+    private function createUnauthorizedResponse(Request $request): Response|JsonResponse
+    {
+        return self::isJsonRequest($request) ?
+            new JsonResponse(['error' => 'unauthorized'], Response::HTTP_UNAUTHORIZED) :
+            new Response('unauthorized', Response::HTTP_UNAUTHORIZED);
+    }
+
+    private function createForbiddenResponse(Request $request): Response|JsonResponse
+    {
+        return self::isJsonRequest($request) ?
+            new JsonResponse(['error' => 'forbidden'], Response::HTTP_FORBIDDEN) :
+            new Response('forbidden', Response::HTTP_FORBIDDEN);
+    }
+
+    private static function isJsonRequest(Request $request): bool
+    {
+        return (
+            $request->isXmlHttpRequest() ||
+            in_array('application/json', $request->getAcceptableContentTypes()) ||
+            in_array('application/x-json', $request->getAcceptableContentTypes()) ||
+            in_array('application/javascript', $request->getAcceptableContentTypes()) ||
+            in_array('application/x-javascript', $request->getAcceptableContentTypes()) ||
+            in_array('text/javascript', $request->getAcceptableContentTypes())
+        );
     }
 }
