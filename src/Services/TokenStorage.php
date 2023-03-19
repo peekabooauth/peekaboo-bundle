@@ -2,6 +2,7 @@
 
 namespace Peekabooauth\PeekabooBundle\Services;
 
+use Peekabooauth\PeekabooBundle\Client\DevHelper;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -18,6 +19,7 @@ class TokenStorage
 
     public function __construct(
         private readonly RequestStack $requestStack,
+        private readonly DevHelper $devHelper,
         private readonly string $tokenName,
     ) {
         try {
@@ -35,6 +37,10 @@ class TokenStorage
     /** @noinspection PhpRedundantOptionalArgumentInspection */
     public function storageToken(Response $response): bool
     {
+        if ($this->devHelper->isDev()) {
+            return true;
+        }
+
         $request = $this->requestStack?->getCurrentRequest();
         if ($request) {
             $token = $request->get($this->tokenName);
@@ -57,6 +63,10 @@ class TokenStorage
 
     public function getToken(): ?string
     {
+        if ($this->devHelper->isDev()) {
+            return 'dev';
+        }
+
         return $this->session->get($this->tokenName) ?: $this->request->cookies->get($this->tokenName);
     }
 
