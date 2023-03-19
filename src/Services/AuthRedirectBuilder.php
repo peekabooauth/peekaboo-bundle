@@ -22,15 +22,14 @@ class AuthRedirectBuilder
 
     public function getRedirectIdentityUrl(): string
     {
+        $redirectUrl = $this->router->generate(
+            name: 'peekaboo_auth',
+            referenceType: UrlGeneratorInterface::ABSOLUTE_URL,
+        );
         $data = [
-            'redirect_url' => $this->router->generate(
-                'peekaboo_auth',
-                [],
-                UrlGeneratorInterface::ABSOLUTE_URL
-            ),
+            'redirect_url' => $redirectUrl,
             'app' => $this->app,
         ];
-
         $data['signature'] = $this->signature->generateSignature($data, $this->secret);
 
         $identityRequestDTO = new IdentityRequestDTO($data);
@@ -43,9 +42,16 @@ class AuthRedirectBuilder
 
     public function getRedirectIdentityLogoutUrl(): string
     {
-        return $this->identityServerUrlExternal .
-            $this->identityServerLogoutPath .
-            '?redirect_url=' .
-            $this->router->generate($this->routeAfterRedirect, [], UrlGeneratorInterface::ABSOLUTE_URL);
+        $redirectUrl = $this->router->generate(
+            name: $this->routeAfterRedirect,
+            referenceType: UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+
+        return implode('', [
+            $this->identityServerUrlExternal,
+            $this->identityServerLogoutPath,
+            '?redirect_url=',
+            $redirectUrl,
+        ]);
     }
 }

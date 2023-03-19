@@ -3,6 +3,7 @@
 namespace Peekabooauth\PeekabooBundle\UserLoader;
 
 use Peekabooauth\PeekabooBundle\Client\Client;
+use Peekabooauth\PeekabooBundle\Client\DevHelper;
 use Peekabooauth\PeekabooBundle\DTO\UserDTO;
 use Peekabooauth\PeekabooBundle\Services\TokenStorage;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -26,10 +27,11 @@ class TokenStorageUserLoader implements TokenStorageUserLoaderInterface
     public function loadUser(): UserInterface
     {
         try {
-            return $this->cache->get(md5($this->tokenStorage->getToken() . __CLASS__), function (ItemInterface $item) {
+            $token = (string)$this->tokenStorage->getToken();
+            return $this->cache->get(md5($token . __CLASS__), function (ItemInterface $item) use ($token) {
                 $item->expiresAfter(600);
 
-                return $this->client->getUserByJwt($this->tokenStorage->getToken());
+                return $this->client->getUserByJwt($token);
             });
         } catch (Throwable $e) {
             $this->tokenStorage->clearToken();

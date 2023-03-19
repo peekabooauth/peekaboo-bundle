@@ -24,6 +24,9 @@ services:
             $identityServerUrlInternal: '%env(IDENTITY_SERVER_URL_INTERNAL)%'
             $app: '%env(PEEKABOO_APPLICATION_NAME)%'
             $secret: '%env(PEEKABOO_APPLICATION_SECRET)%'
+    Peekabooauth\PeekabooBundle\Client\DevHelper:
+        bind:
+            $identityServerUrlInternal: '%env(IDENTITY_SERVER_URL_INTERNAL)%'
 
     Peekabooauth\PeekabooBundle\ArgumentResolver\IdentityRequestResolver:
         tags:

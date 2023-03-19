@@ -20,6 +20,7 @@ class Client
         private readonly string $secret,
         private readonly HttpClientInterface $httpClient,
         private readonly Signature $signature,
+        private readonly DevHelper $devHelper,
         private readonly LoggerInterface $logger = new NullLogger(),
     ) {
     }
@@ -64,6 +65,11 @@ class Client
     /** @throws Throwable */
     private function getUser(array $options, string $url): UserDTO
     {
+        $result = $this->devHelper->getUser();
+        if ($result) {
+            return $result;
+        }
+
         $response = $this->httpClient->request(
             method: Request::METHOD_POST,
             url: $url,
