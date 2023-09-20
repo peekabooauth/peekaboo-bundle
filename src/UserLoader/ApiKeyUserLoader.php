@@ -29,7 +29,7 @@ class ApiKeyUserLoader implements UserLoaderInterface
         return $this->cache->get(md5($this->getApiKey().__CLASS__), function (ItemInterface $item) {
             $item->expiresAfter(300);
 
-            return $this->client->getUserByApiKey($this->getApiKey());
+            return $this->client->getUserByApiKey($this->getApiKey(), $this->getRequest()->getClientIp());
         });
     }
 

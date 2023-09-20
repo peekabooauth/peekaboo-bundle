@@ -14,6 +14,8 @@ use Throwable;
 
 class Client
 {
+    public const X_CLIENT_IP = 'x-client-ip';
+
     public function __construct(
         private readonly string $identityServerUrlInternal,
         private readonly string $app,
@@ -26,12 +28,12 @@ class Client
     }
 
     /** @throws Throwable */
-    public function getUserByApiKey(string $apiKey): UserDTO
+    public function getUserByApiKey(string $apiKey, ?string $clientIp = null): UserDTO
     {
         $options = [
             'headers' => [
                 'content-type' => 'application/json',
-                'x-api-key' => $apiKey
+                self::X_CLIENT_IP => $clientIp,
             ],
         ];
 
@@ -44,12 +46,13 @@ class Client
     }
 
     /** @throws Throwable */
-    public function getUserByJwt(string $token): UserDTO
+    public function getUserByJwt(string $token, ?string $clientIp = null): UserDTO
     {
         $options = [
             'auth_bearer' => $token,
             'headers' => [
                 'content-type' => 'application/json',
+                self::X_CLIENT_IP => $clientIp,
             ],
         ];
 
