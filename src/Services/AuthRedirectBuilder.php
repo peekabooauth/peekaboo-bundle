@@ -12,6 +12,7 @@ class AuthRedirectBuilder
         private readonly string $identityServerUrlExternal,
         private readonly string $identityServerAuthPath,
         private readonly string $identityServerLogoutPath,
+        private readonly string $identityServerAutologin,
         private readonly string $routeAfterRedirect,
         private readonly string $app,
         private readonly string $secret,
@@ -29,6 +30,7 @@ class AuthRedirectBuilder
         $data = [
             'redirect_url' => $redirectUrl,
             'app' => $this->app,
+            'autologin' => $this->identityServerAutologin,
         ];
         $data['signature'] = $this->signature->generateSignature($data, $this->secret);
 
