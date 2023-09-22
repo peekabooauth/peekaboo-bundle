@@ -5,6 +5,7 @@ parameters:
     env(ROUTE_AFTER_REDIRECT): 'homepage'
     env(IDENTITY_SERVER_URL_INTERNAL): 'https://peekabooauth.com'
     env(PEEKABOO_APPLICATION_NAME): 'dev'
+    env(PEEKABOO_AUTOLOGIN): ''
     #env(PEEKABOO_APPLICATION_SECRET): ''
 
 services:
@@ -67,6 +68,7 @@ services:
             $identityServerUrlExternal: '%env(IDENTITY_SERVER_URL_EXTERNAL)%'
             $identityServerAuthPath: '%env(IDENTITY_SERVER_AUTH_PATH)%'
             $identityServerLogoutPath: '%env(IDENTITY_SERVER_LOGOUT_PATH)%'
+            $identityServerAutologin: '%env(PEEKABOO_AUTOLOGIN)%'
             $routeAfterRedirect: '%env(ROUTE_AFTER_REDIRECT)%'
             $app: '%env(PEEKABOO_APPLICATION_NAME)%'
             $secret: '%env(PEEKABOO_APPLICATION_SECRET)%'
