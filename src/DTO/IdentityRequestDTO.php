@@ -16,7 +16,6 @@ class IdentityRequestDTO implements JsonSerializable
     #[Assert\NotBlank(message: 'Field signature can not be empty')]
     public ?string $signature = null;
 
-    #[Assert\NotBlank(message: 'Field autologin can not be empty')]
     public ?string $autologin = null;
 
     public function __construct(array $data)
