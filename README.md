@@ -61,3 +61,11 @@ curl -X POST -H "Content-Type: application/json" https://peekabooauth.com/api/lo
 If you want to test app without connection to real server (useful for development offline) then set
 env `IDENTITY_SERVER_URL_INTERNAL=https://peekabooauth.dev`. Then you'll get valid user immediately without
 using identity server.
+
+### Autologin
+
+Set `PEEKABOO_AUTOLOGIN=google` or `PEEKABOO_AUTOLOGIN=facebook` to skip login form and login automatically via Google
+or Facebook. Also possible values `google_js`, `facebook_js` to show login page but autoclick the button login via
+Google or Facebook.
+
+Default - empty - show login form without autologin.
