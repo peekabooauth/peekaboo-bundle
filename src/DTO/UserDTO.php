@@ -28,8 +28,7 @@ class UserDTO implements UserInterface, JsonSerializable
         return array_unique($roles);
     }
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
     }
 
