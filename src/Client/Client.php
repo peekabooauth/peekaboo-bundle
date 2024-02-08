@@ -15,6 +15,7 @@ use Throwable;
 class Client
 {
     public const X_CLIENT_IP = 'x-client-ip';
+    public const X_API_KEY = 'x-api-key';
 
     public function __construct(
         private readonly string $identityServerUrlInternal,
@@ -34,6 +35,7 @@ class Client
             'headers' => [
                 'content-type' => 'application/json',
                 self::X_CLIENT_IP => $clientIp,
+                self::X_API_KEY => $apiKey
             ],
         ];
 
