@@ -5,12 +5,11 @@ namespace Peekabooauth\PeekabooBundle\ArgumentResolver;
 use Peekabooauth\PeekabooBundle\DTO\IdentityRequestDTO;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
-use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class IdentityRequestResolver implements ValueResolverInterface
+class IdentityRequestResolver implements ArgumentValueResolverInterface
 {
     public function __construct(
         private readonly ValidatorInterface $validator,
