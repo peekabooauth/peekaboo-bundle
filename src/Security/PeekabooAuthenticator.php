@@ -74,7 +74,7 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
         return new RedirectResponse($this->getLoginUrl($request));
     }
 
-    public function start(Request $request, AuthenticationException $authException = null): Response
+    public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
         if ($this->userLoaderRegistry->isApiAuth()) {
             return $this->createUnauthorizedResponse($request);

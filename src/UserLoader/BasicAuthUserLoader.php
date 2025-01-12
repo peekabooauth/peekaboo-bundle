@@ -35,7 +35,7 @@ class BasicAuthUserLoader implements UserLoaderInterface
 
     public function isAuth(): bool
     {
-        $this->forceBrowserAuthIfNeeded(); // otherwise only cli requests will work but not from browser ui
+        $this->forceBrowserAuthIfNeeded(); // otherwise only cli requests will work but not from the browser UI
 
         return $this->getAuthUsername() !== '';
     }

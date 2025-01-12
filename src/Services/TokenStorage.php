@@ -34,7 +34,6 @@ class TokenStorage
         }
     }
 
-    /** @noinspection PhpRedundantOptionalArgumentInspection */
     public function storageToken(Response $response): bool
     {
         if ($this->devHelper->isDev()) {
