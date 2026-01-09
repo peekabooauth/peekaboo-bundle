@@ -30,15 +30,13 @@ jobs:
 
             -   name: phpunit
                 uses: php-actions/phpunit@v4
-                env:
-                    XDEBUG_MODE: coverage
                 with:
                     version: '11.5'
                     php_version: '8.4'
                     configuration: phpunit.xml.dist
-                    args: '--coverage-text --coverage-clover coverage.xml -dxdebug.mode=coverage'
+                    args: '--coverage-text --coverage-clover coverage.xml'
                     memory_limit: '512M'
-                    php_extensions: xdebug mbstring
+                    php_extensions: pcov mbstring
 
             -   name: codecov
                 uses: codecov/codecov-action@v5
