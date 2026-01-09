@@ -10,9 +10,10 @@ class LogoutListener
     public function onSymfonyComponentSecurityHttpEventLogoutEvent(LogoutEvent $logoutEvent): void
     {
         $request = $logoutEvent->getRequest();
-        if ($request->get('redirect_url')) {
+        $redirectUrl = $request->query->get('redirect_url');
+        if ($redirectUrl) {
             $logoutEvent->setResponse(
-                new RedirectResponse($request->get('redirect_url'))
+                new RedirectResponse($redirectUrl)
             );
         }
     }

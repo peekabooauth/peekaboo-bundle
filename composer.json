@@ -7,22 +7,32 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.4",
         "ext-json": "*",
-        "psr/log": "^1|^2|^3",
-        "symfony/framework-bundle": "^6.2|^7.0",
-        "symfony/http-client": "^6.2|^7.0",
-        "symfony/http-foundation": "^6.2|^7.0",
-        "symfony/http-kernel": "^6.2|^7.0",
-        "symfony/routing": "^6.2|^7.0",
-        "symfony/security-core": "^6.2|^7.0",
-        "symfony/security-http": "^6.2|^7.0",
-        "symfony/validator": "^6.2|^7.0"
+        "psr/log": "^3.0",
+        "symfony/framework-bundle": "^7.4|^8.0",
+        "symfony/http-client": "^7.4|^8.0",
+        "symfony/http-foundation": "^7.4|^8.0",
+        "symfony/http-kernel": "^7.4|^8.0",
+        "symfony/routing": "^7.4|^8.0",
+        "symfony/security-core": "^7.4|^8.0",
+        "symfony/security-http": "^7.4|^8.0",
+        "symfony/validator": "^7.4|^8.0"
     },
     "require-dev": {
         "phpspec/prophecy-phpunit": "^2.0",
-        "phpunit/phpunit": "^10.5",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^11.5",
         "roave/security-advisories": "dev-latest"
+    },
+    "config": {
+        "preferred-install": {
+            "*": "dist"
+        },
+        "platform": {
+            "php": "8.4"
+        },
+        "sort-packages": true
     },
     "autoload": {
         "psr-4": {
@@ -33,14 +43,5 @@
         "psr-4": {
             "Peekabooauth\\PeekabooBundle\\Tests\\": "tests/"
         }
-    },
-    "config": {
-        "preferred-install": {
-            "*": "dist"
-        },
-        "platform": {
-            "php": "8.1"
-        },
-        "sort-packages": true
     }
 }

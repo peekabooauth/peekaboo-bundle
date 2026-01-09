@@ -15,8 +15,8 @@ class ClientTest extends TestCase
     use ProphecyTrait;
 
     private Client $client;
-    private HttpClientInterface|ObjectProphecy $httpClient;
-    private Signature|ObjectProphecy $signature;
+    private ObjectProphecy $httpClient;
+    private ObjectProphecy $signature;
 
     protected function setUp(): void
     {

@@ -23,12 +23,12 @@ class TokenStorage
         private readonly string $tokenName,
     ) {
         try {
-            $this->request = $this->requestStack?->getMainRequest() ?? new Request();
+            $this->request = $this->requestStack->getMainRequest() ?? new Request();
         } catch (Throwable) {
             $this->request = new Request();
         }
         try {
-            $this->session = $this->requestStack?->getSession() ?? new Session();
+            $this->session = $this->requestStack->getSession();
         } catch (Throwable) {
             $this->session = new Session();
         }
@@ -40,9 +40,9 @@ class TokenStorage
             return true;
         }
 
-        $request = $this->requestStack?->getCurrentRequest();
+        $request = $this->requestStack->getCurrentRequest();
         if ($request) {
-            $token = $request->get($this->tokenName);
+            $token = $request->query->get($this->tokenName);
             if ($token) {
                 $this->session->set($this->tokenName, $token);
 
