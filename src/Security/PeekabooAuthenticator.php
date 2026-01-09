@@ -45,7 +45,7 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
     public function authenticate(Request $request): Passport
     {
         /** @var UserDTO $user */
-        $user = $this->userProvider->loadUserByIdentifier();
+        $user = $this->userProvider->loadUserByIdentifier('');
 
         return new SelfValidatingPassport(new UserBadge($user->email));
     }

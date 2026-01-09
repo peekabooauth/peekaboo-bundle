@@ -32,7 +32,7 @@ class UserProvider implements UserProviderInterface
         return $class === UserDTO::class;
     }
 
-    public function loadUserByIdentifier(?string $identifier = null): UserInterface
+    public function loadUserByIdentifier(string $identifier): UserInterface
     {
         return $this->userLoaderRegistry->getUser();
     }
