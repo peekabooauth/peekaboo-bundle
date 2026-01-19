@@ -4,7 +4,6 @@ namespace Peekabooauth\PeekabooBundle\Services;
 
 use Peekabooauth\PeekabooBundle\Client\DevHelper;
 use Symfony\Component\HttpFoundation\Cookie;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -13,25 +12,11 @@ use Throwable;
 
 class TokenStorage
 {
-    private SessionInterface $session;
-
-    private Request $request;
-
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly DevHelper $devHelper,
         private readonly string $tokenName,
     ) {
-        try {
-            $this->request = $this->requestStack->getMainRequest() ?? new Request();
-        } catch (Throwable) {
-            $this->request = new Request();
-        }
-        try {
-            $this->session = $this->requestStack->getSession();
-        } catch (Throwable) {
-            $this->session = new Session();
-        }
     }
 
     public function storageToken(Response $response): bool
@@ -44,7 +29,7 @@ class TokenStorage
         if ($request) {
             $token = $request->query->get($this->tokenName);
             if ($token) {
-                $this->session->set($this->tokenName, $token);
+                $this->getSession()->set($this->tokenName, $token);
 
                 $response->headers->setCookie(Cookie::create(
                     name: $this->tokenName,
@@ -66,13 +51,27 @@ class TokenStorage
             return 'dev';
         }
 
-        return $this->session->get($this->tokenName) ?: $this->request->cookies->get($this->tokenName);
+        $token = $this->getSession()->get($this->tokenName);
+        if ($token) {
+            return $token;
+        }
+
+        return $this->requestStack->getMainRequest()?->cookies->get($this->tokenName);
     }
 
     public function clearToken(?Response $response = null): ?string
     {
         $response?->headers->clearCookie($this->tokenName);
 
-        return $this->session->remove($this->tokenName);
+        return $this->getSession()->remove($this->tokenName);
+    }
+
+    private function getSession(): SessionInterface
+    {
+        try {
+            return $this->requestStack->getSession();
+        } catch (Throwable) {
+            return new Session();
+        }
     }
 }

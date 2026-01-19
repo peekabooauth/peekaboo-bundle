@@ -15,12 +15,12 @@
         "symfony/http-foundation": "^7.4|^8.0",
         "symfony/http-kernel": "^7.4|^8.0",
         "symfony/routing": "^7.4|^8.0",
+        "symfony/security-bundle": "^7.4|^8.0",
         "symfony/security-core": "^7.4|^8.0",
         "symfony/security-http": "^7.4|^8.0",
         "symfony/validator": "^7.4|^8.0"
     },
     "require-dev": {
-        "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^11.5",
         "roave/security-advisories": "dev-latest"
@@ -43,5 +43,9 @@
         "psr-4": {
             "Peekabooauth\\PeekabooBundle\\Tests\\": "tests/"
         }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "analyze": "phpstan analyze"
     }
 }
