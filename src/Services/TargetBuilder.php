@@ -4,6 +4,7 @@ namespace Peekabooauth\PeekabooBundle\Services;
 
 use Symfony\Bundle\SecurityBundle\Security\FirewallMap;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Security\Http\FirewallMapInterface;
 
 class TargetBuilder
 {
@@ -11,7 +12,7 @@ class TargetBuilder
 
     public function __construct(
         private readonly RequestStack $requestStack,
-        private readonly FirewallMap $firewallMap,
+        private readonly FirewallMapInterface $firewallMap,
     ) {
     }
 
@@ -20,8 +21,11 @@ class TargetBuilder
         $request = $this->requestStack->getCurrentRequest();
         $session = $this->requestStack->getSession();
 
-        $firewallConfig = $this->firewallMap->getFirewallConfig($request);
-        $firewallName = $firewallConfig?->getName() ?? self::DEFAULT_FIREWALL_NAME;
+        $firewallName = self::DEFAULT_FIREWALL_NAME;
+        if ($request !== null && $this->firewallMap instanceof FirewallMap) {
+            $firewallConfig = $this->firewallMap->getFirewallConfig($request);
+            $firewallName = $firewallConfig?->getName() ?? self::DEFAULT_FIREWALL_NAME;
+        }
 
         return $session->get('_security.'.$firewallName.'.target_path', '/');
     }
