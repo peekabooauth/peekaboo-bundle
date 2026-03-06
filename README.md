@@ -103,6 +103,7 @@ curl -X POST -H "Content-Type: application/json" \
 | `PEEKABOO_APPLICATION_NAME`    | Your application name registered with Peekaboo               | `dev`                      |
 | `PEEKABOO_APPLICATION_SECRET`  | Your application secret                                      | (required)                 |
 | `PEEKABOO_AUTOLOGIN`           | Auto-login provider (see below)                              | (empty)                    |
+| `PEEKABOO_DEV_ROLES`           | Override dev user roles (comma-separated)                    | (empty = default roles)    |
 
 Example `.env`:
 
@@ -125,11 +126,24 @@ To test your app without connecting to the real identity server (useful for offl
 IDENTITY_SERVER_URL_INTERNAL=https://peekabooauth.dev
 ```
 
-This returns a hardcoded admin user with the following properties:
+This returns a hardcoded dev user with the following properties:
 
 - Email: `admin@localhost.net`
 - Name: `dev`
 - Roles: `ROLE_ADMIN`, `ROLE_USER`, `ROLE_API`, `ROLE_DEV`
+
+To test with different roles, set `PEEKABOO_DEV_ROLES` in `.env.local`:
+
+```bash
+# Test as a specific role
+PEEKABOO_DEV_ROLES=ROLE_QA
+
+# Test with multiple roles
+PEEKABOO_DEV_ROLES=ROLE_QA,ROLE_USER
+
+# Back to default (all dev roles) — remove the line or leave empty
+PEEKABOO_DEV_ROLES=
+```
 
 ## Autologin
 

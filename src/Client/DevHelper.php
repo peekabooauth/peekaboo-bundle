@@ -7,9 +7,11 @@ use Peekabooauth\PeekabooBundle\DTO\UserDTO;
 class DevHelper
 {
     private const DEV_URL = 'https://peekabooauth.dev';
+    private const DEFAULT_DEV_ROLES = ['ROLE_ADMIN', 'ROLE_USER', 'ROLE_API', 'ROLE_DEV'];
 
     public function __construct(
         private readonly string $identityServerUrlInternal,
+        private readonly string $devRoles = '',
     ) {
     }
 
@@ -19,9 +21,11 @@ class DevHelper
             return null;
         }
 
+        $roles = $this->devRoles !== '' ? array_map('trim', explode(',', $this->devRoles)) : self::DEFAULT_DEV_ROLES;
+
         return new UserDTO([
             'email' => 'admin@localhost.net',
-            'roles' => ['ROLE_ADMIN', 'ROLE_USER', 'ROLE_API', 'ROLE_DEV'],
+            'roles' => $roles,
             'name' => 'dev',
         ]);
     }

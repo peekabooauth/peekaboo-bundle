@@ -6,6 +6,7 @@ parameters:
     env(IDENTITY_SERVER_URL_INTERNAL): 'https://peekabooauth.com'
     env(PEEKABOO_APPLICATION_NAME): 'dev'
     env(PEEKABOO_AUTOLOGIN): ''
+    env(PEEKABOO_DEV_ROLES): ''
     #env(PEEKABOO_APPLICATION_SECRET): ''
 
 services:
@@ -28,6 +29,7 @@ services:
     Peekabooauth\PeekabooBundle\Client\DevHelper:
         bind:
             $identityServerUrlInternal: '%env(IDENTITY_SERVER_URL_INTERNAL)%'
+            $devRoles: '%env(PEEKABOO_DEV_ROLES)%'
 
     Peekabooauth\PeekabooBundle\ArgumentResolver\IdentityRequestResolver:
         tags:
