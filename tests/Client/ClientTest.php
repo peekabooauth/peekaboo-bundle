@@ -18,8 +18,8 @@ class ClientTest extends TestCase
             identityServerUrlInternal: 'https://peekabooauth.dev',
             app: 'test-app',
             secret: 'test-secret',
-            httpClient: $this->createMock(HttpClientInterface::class),
-            signature: $this->createMock(Signature::class),
+            httpClient: $this->createStub(HttpClientInterface::class),
+            signature: $this->createStub(Signature::class),
             devHelper: new DevHelper('https://peekabooauth.dev'),
         );
     }

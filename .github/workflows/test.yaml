@@ -31,7 +31,7 @@ jobs:
             -   name: phpunit
                 uses: php-actions/phpunit@v4
                 with:
-                    version: '11.5'
+                    version: '13.0'
                     php_version: '8.4'
                     configuration: phpunit.xml.dist
                     args: '--coverage-text --coverage-clover coverage.xml'

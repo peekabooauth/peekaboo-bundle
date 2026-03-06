@@ -50,7 +50,8 @@ Environment variables (see `src/Resources/config/services.yaml`):
 - `IDENTITY_SERVER_URL_EXTERNAL` / `IDENTITY_SERVER_URL_INTERNAL`
 - `PEEKABOO_APPLICATION_NAME`, `PEEKABOO_APPLICATION_SECRET`
 - `PEEKABOO_AUTOLOGIN` (optional: `google`, `facebook`, `google_js`, `facebook_js`)
+- `PEEKABOO_DEV_ROLES` (optional: comma-separated roles to override dev user defaults)
 
 ### Testing
 
-Uses PHPUnit with Prophecy for mocking. Dev mode (`https://peekabooauth.dev`) returns a hardcoded admin user without hitting the real identity server.
+Uses PHPUnit with native mocks. Dev mode (`https://peekabooauth.dev`) returns a hardcoded admin user without hitting the real identity server. Set `PEEKABOO_DEV_ROLES` to override roles (e.g. `PEEKABOO_DEV_ROLES=ROLE_SEO`).
