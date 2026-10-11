@@ -39,10 +39,14 @@ class Client
             ],
         ];
 
+        // A key belongs to one app: the server must only look it up within this app.
         $urlApiKey = sprintf(
             '%s/api/user-by-key',
             rtrim($this->identityServerUrlInternal, '/')
-        );
+        ) . '?' . http_build_query([
+            'app' => $this->app,
+            'signature' => $this->signature->generateSignature([$this->app], $this->secret),
+        ]);
 
         return $this->getUser($options, $urlApiKey);
     }
