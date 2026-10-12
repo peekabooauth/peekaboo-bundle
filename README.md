@@ -5,8 +5,12 @@ Symfony bundle for authentication integration with the Peekaboo identity server.
 
 ## Requirements
 
-- PHP 8.4+
-- Symfony 7.4+ or 8.0+
+- PHP 8.1+
+- Symfony 6.2 – 6.4
+
+This is the `1.8` legacy line (releases `1.8.2` and later `1.8.x`). It carries the same behaviour as `1.9.0`, including the
+`app` + `signature` parameters on API key lookups, for applications that cannot move to PHP 8.4 / Symfony 7.4 yet.
+Applications on PHP 8.4+ and Symfony 7.4+/8.0+ should use `1.9+` from the `main` branch.
 
 ## Install
 

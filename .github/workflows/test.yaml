@@ -1,44 +1,56 @@
 name: test
 on:
     workflow_dispatch:
-    push: {branches: ['main']}
+    push: {branches: ['1.8']}
+    pull_request: {branches: ['1.8']}
 concurrency:
     group: ci-${{ github.ref }}-${{ github.head_ref }}
     cancel-in-progress: true
 jobs:
     test:
         runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    -   {php: '8.1', deps: lowest}   # Symfony 6.2.0
+                    -   {php: '8.1', deps: highest}  # Symfony 6.4
+                    -   {php: '8.5', deps: highest}
+        name: php ${{ matrix.php }}, ${{ matrix.deps }} deps
         steps:
             -   name: checkout
                 uses: actions/checkout@v6
                 with:
                     fetch-depth: 1
 
-            -   name: composer cache
-                uses: actions/cache@v5
+            -   name: php
+                uses: shivammathur/setup-php@v2
                 with:
-                    path: /tmp/composer-cache
-                    key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+                    php-version: ${{ matrix.php }}
+                    extensions: mbstring
+                    coverage: pcov
+                    tools: composer:v2
 
-            -   name: composer
-                uses: php-actions/composer@v6
-                with:
-                    dev: yes
-                    php_version: '8.4'
-                    memory_limit: 512M
-                    args: '--ignore-platform-reqs --no-ansi --no-scripts --no-progress -o'
+            # the advisories package and composer's own audit block the old releases the lowest job exists to test
+            -   name: composer (lowest)
+                if: matrix.deps == 'lowest'
+                run: |
+                    composer remove --dev roave/security-advisories --no-update --no-interaction
+                    composer config audit.block-insecure false
+                    composer update --prefer-lowest --no-interaction --no-progress --no-scripts --no-audit
+
+            -   name: composer (highest)
+                if: matrix.deps == 'highest'
+                run: composer update --no-interaction --no-progress --no-scripts
 
             -   name: phpunit
-                uses: php-actions/phpunit@v4
-                with:
-                    version: '13.0'
-                    php_version: '8.4'
-                    configuration: phpunit.xml.dist
-                    args: '--coverage-text --coverage-clover coverage.xml'
-                    memory_limit: '512M'
-                    php_extensions: pcov mbstring
+                run: vendor/bin/phpunit --coverage-text --coverage-clover coverage.xml
+
+            -   name: phpstan
+                run: vendor/bin/phpstan analyse -c phpstan.dist.neon --no-progress
 
             -   name: codecov
+                if: matrix.php == '8.1' && matrix.deps == 'highest'
                 uses: codecov/codecov-action@v5
                 with:
                     verbose: true

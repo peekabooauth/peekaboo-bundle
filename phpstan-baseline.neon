@@ -1,2 +1,8 @@
 parameters:
-	ignoreErrors: []
+	ignoreErrors:
+		-
+			# Symfony 6 only documents __toString() on the interface via @method; validate() returns ConstraintViolationList, which implements it
+			message: '#^Cannot cast Symfony\\Component\\Validator\\ConstraintViolationListInterface to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: src/ArgumentResolver/IdentityRequestResolver.php

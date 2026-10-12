@@ -23,7 +23,7 @@ vendor/bin/phpstan analyse -c phpstan.dist.neon
 
 ## Architecture Overview
 
-This is a Symfony bundle (`peekabooauth/peekaboo-bundle`) that provides authentication integration with the Peekaboo identity server. It requires PHP 8.4+ and Symfony 7.4+/8.0+.
+This is a Symfony bundle (`peekabooauth/peekaboo-bundle`) that provides authentication integration with the Peekaboo identity server. This is the `1.8` legacy branch: it requires PHP 8.1+ and Symfony 6.2–6.4 (`main` requires PHP 8.4+ and Symfony 7.4+/8.0+). Code here must stay valid PHP 8.1 and must only use Symfony APIs that exist in 6.2.
 
 ### Authentication Flow
 

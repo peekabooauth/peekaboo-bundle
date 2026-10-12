@@ -58,6 +58,6 @@ class ClientTest extends TestCase
         parse_str((string)parse_url((string)$requestedUrl, PHP_URL_QUERY), $query);
         self::assertSame('https://peekabooauth.com/api/user-by-key', strtok((string)$requestedUrl, '?'));
         self::assertSame('vostok-admin', $query['app'] ?? null);
-        self::assertSame(new Signature()->generateSignature(['vostok-admin'], 'admin-secret'), $query['signature'] ?? null);
+        self::assertSame((new Signature())->generateSignature(['vostok-admin'], 'admin-secret'), $query['signature'] ?? null);
     }
 }
