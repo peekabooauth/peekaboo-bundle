@@ -18,6 +18,12 @@ class Client
     public const X_CLIENT_IP = 'x-client-ip';
     public const X_API_KEY = 'x-api-key';
 
+    /**
+     * Peekaboo rejected the user's JWT (401) or did not find the API key (404): logged as a warning, not an error.
+     * Note: peekaboo also answers a wrong JWT-path signature with 404, which this cannot tell apart.
+     */
+    private const REJECTED_CREDENTIALS_STATUSES = [Response::HTTP_UNAUTHORIZED, Response::HTTP_NOT_FOUND];
+
     public function __construct(
         private readonly string $identityServerUrlInternal,
         private readonly string $app,
@@ -134,7 +140,14 @@ class Client
         );
         $statusCode = $response->getStatusCode();
         if ($statusCode !== Response::HTTP_OK) {
-            $this->logger->error('peekaboo_auth_error', ['status_code' => $statusCode, 'content' => mb_substr($response->getContent(false), 0, 300)]);
+            $context = ['status_code' => $statusCode, 'content' => mb_substr($response->getContent(false), 0, 300)];
+            if (in_array($statusCode, self::REJECTED_CREDENTIALS_STATUSES, true)) {
+                // An expired/foreign JWT or an unknown API key: the caller's credentials, not a fault.
+                $this->logger->warning('peekaboo_auth_error', $context);
+            } else {
+                // 5xx (peekaboo down), 403 (this app's signature/secret is wrong) and anything unexpected.
+                $this->logger->error('peekaboo_auth_error', $context);
+            }
 
             throw new RuntimeException('peekaboo_auth_error');
         }
