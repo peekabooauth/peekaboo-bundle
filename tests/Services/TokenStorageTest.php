@@ -6,6 +6,7 @@ use Peekabooauth\PeekabooBundle\Client\Client;
 use Peekabooauth\PeekabooBundle\Client\DevHelper;
 use Peekabooauth\PeekabooBundle\Services\TokenStorage;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -17,7 +18,7 @@ class TokenStorageTest extends TestCase
 {
     private Session $session;
 
-    private function storage(Request $request, Client $client): TokenStorage
+    private function storage(Request $request, Client $client, ?LoggerInterface $logger = null): TokenStorage
     {
         $this->session = new Session(new MockArraySessionStorage());
         $request->setSession($this->session);
@@ -30,6 +31,7 @@ class TokenStorageTest extends TestCase
             client: $client,
             tokenName: '__peekaboo_token',
             codeName: '__peekaboo_code',
+            logger: $logger ?? new \Psr\Log\NullLogger(),
         );
     }
 
@@ -73,5 +75,29 @@ class TokenStorageTest extends TestCase
         self::assertFalse($storage->storageToken($response));
         self::assertNull($this->session->get('__peekaboo_token'));
         self::assertSame([], $response->headers->getCookies());
+    }
+
+    public function testFailedExchangeLogsOnlyExceptionClass(): void
+    {
+        $client = $this->createStub(Client::class);
+        $client->method('exchangeCode')->willThrowException(new RuntimeException('secret-message'));
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())->method('warning')
+            ->with('peekaboo_code_exchange_failed', ['exception' => RuntimeException::class]);
+
+        $storage = $this->storage(Request::create('/peekaboo/auth', 'GET', ['__peekaboo_code' => 'c0de']), $client, $logger);
+
+        self::assertFalse($storage->storageToken(new Response()));
+    }
+
+    public function testCodeWinsOverLegacyToken(): void
+    {
+        $client = $this->createMock(Client::class);
+        $client->expects(self::once())->method('exchangeCode')->with('c0de')->willReturn('jwt-1');
+
+        $storage = $this->storage(Request::create('/peekaboo/auth', 'GET', ['__peekaboo_code' => 'c0de', '__peekaboo_token' => 'legacy']), $client);
+
+        self::assertTrue($storage->storageToken(new Response()));
+        self::assertSame('jwt-1', $this->session->get('__peekaboo_token'));
     }
 }
