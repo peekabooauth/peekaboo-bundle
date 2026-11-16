@@ -39,9 +39,13 @@ jobs:
                     composer config audit.block-insecure false
                     composer update --prefer-lowest --no-interaction --no-progress --no-scripts --no-audit
 
+            # roave/security-advisories lists every PHP below 8.2.35 as insecure, which conflicts with this line's
+            # PHP 8.1 platform pin; composer's own audit still blocks insecure dependencies
             -   name: composer (highest)
                 if: matrix.deps == 'highest'
-                run: composer update --no-interaction --no-progress --no-scripts
+                run: |
+                    composer remove --dev roave/security-advisories --no-update --no-interaction
+                    composer update --no-interaction --no-progress --no-scripts
 
             -   name: phpunit
                 run: vendor/bin/phpunit --coverage-text --coverage-clover coverage.xml

@@ -3,6 +3,7 @@
 namespace Peekabooauth\PeekabooBundle\Client;
 
 use Peekabooauth\PeekabooBundle\DTO\UserDTO;
+use Peekabooauth\PeekabooBundle\PeekabooBundle;
 use Peekabooauth\PeekabooBundle\Services\Signature;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -34,6 +35,7 @@ class Client
         $options = [
             'headers' => [
                 'content-type' => 'application/json',
+                'User-Agent' => self::userAgent(),
                 self::X_CLIENT_IP => $clientIp,
                 self::X_API_KEY => $apiKey
             ],
@@ -58,6 +60,7 @@ class Client
             'auth_bearer' => $token,
             'headers' => [
                 'content-type' => 'application/json',
+                'User-Agent' => self::userAgent(),
                 self::X_CLIENT_IP => $clientIp,
             ],
         ];
@@ -69,6 +72,51 @@ class Client
         ) . '?signature=' . $this->signature->generateSignature([$this->app], $this->secret);
 
         return $this->getUser($options, $urlJwt);
+    }
+
+    /**
+     * Exchanges the one-time code from the redirect for the JWT (server-to-server).
+     *
+     * @throws Throwable
+     */
+    public function exchangeCode(string $code, ?string $clientIp = null): string
+    {
+        $response = $this->httpClient->request(
+            method: Request::METHOD_POST,
+            url: sprintf('%s/api/token-by-code', rtrim($this->identityServerUrlInternal, '/')),
+            options: [
+                'headers' => [
+                    'User-Agent' => self::userAgent(),
+                    self::X_CLIENT_IP => $clientIp,
+                ],
+                'json' => [
+                    'app' => $this->app,
+                    'code' => $code,
+                    'signature' => $this->signature->generateSignature([$this->app, $code], $this->secret),
+                ],
+            ]
+        );
+        $statusCode = $response->getStatusCode();
+        if ($statusCode !== Response::HTTP_OK) {
+            // The raw code is never logged.
+            $this->logger->error('peekaboo_code_exchange_error', ['status_code' => $statusCode, 'content' => mb_substr($response->getContent(false), 0, 300)]);
+
+            throw new RuntimeException('peekaboo_code_exchange_error');
+        }
+
+        $token = $response->toArray(false)['token'] ?? null;
+        if (!is_string($token) || $token === '') {
+            $this->logger->error('peekaboo_code_exchange_error', ['status_code' => $statusCode, 'reason' => 'missing_token']);
+
+            throw new RuntimeException('peekaboo_code_exchange_error');
+        }
+
+        return $token;
+    }
+
+    private static function userAgent(): string
+    {
+        return 'peekaboo-bundle/' . PeekabooBundle::VERSION;
     }
 
     /** @throws Throwable */

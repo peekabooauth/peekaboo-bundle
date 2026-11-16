@@ -18,12 +18,15 @@ class IdentityRequestDTO implements JsonSerializable
 
     public ?string $autologin = null;
 
+    public ?string $v = null;
+
     public function __construct(array $data)
     {
         $this->redirectUrl = $data['redirect_url'] ?? null;
         $this->app = $data['app'] ?? null;
         $this->signature = $data['signature'] ?? null;
         $this->autologin = $data['autologin'] ?? null;
+        $this->v = $data['v'] ?? null;
     }
 
     public function jsonSerialize(): array
@@ -33,6 +36,7 @@ class IdentityRequestDTO implements JsonSerializable
             'app' => $this->app,
             'signature' => $this->signature,
             'autologin' => $this->autologin,
+            'v' => $this->v,
         ];
     }
 }

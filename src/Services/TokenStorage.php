@@ -2,7 +2,10 @@
 
 namespace Peekabooauth\PeekabooBundle\Services;
 
+use Peekabooauth\PeekabooBundle\Client\Client;
 use Peekabooauth\PeekabooBundle\Client\DevHelper;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,7 +18,10 @@ class TokenStorage
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly DevHelper $devHelper,
+        private readonly Client $client,
         private readonly string $tokenName,
+        private readonly string $codeName = '__peekaboo_code',
+        private readonly LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
@@ -27,7 +33,19 @@ class TokenStorage
 
         $request = $this->requestStack->getCurrentRequest();
         if ($request) {
-            $token = $request->query->get($this->tokenName);
+            $token = null;
+            $code = $request->query->get($this->codeName);
+            if ($code) {
+                try {
+                    $token = $this->client->exchangeCode((string)$code, $request->getClientIp());
+                } catch (Throwable $e) {
+                    $this->logger->warning('peekaboo_code_exchange_failed', ['exception' => $e::class]);
+
+                    return false;
+                }
+            } else {
+                $token = $request->query->get($this->tokenName);
+            }
             if ($token) {
                 $this->getSession()->set($this->tokenName, $token);
 

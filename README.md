@@ -161,6 +161,15 @@ Set `PEEKABOO_AUTOLOGIN` to skip the login form and authenticate automatically:
 | `facebook_js` | Show login page, auto-click Facebook button |
 | (empty)       | Show login form without autologin           |
 
+## Upgrading to 1.8.3 (same change as 1.10.0 on main)
+
+- Requires a Peekaboo server that has `/api/token-by-code`. Deploy the server first: against an older server
+  login fails with "wrong signature".
+- After login the app now receives a one-time `__peekaboo_code` and exchanges it server-to-server, so the JWT
+  no longer travels in the URL.
+- `TokenStorage`'s constructor gained `Client` (and an optional logger). This only matters if you construct or
+  decorate it yourself.
+
 ## Development
 
 ```bash
