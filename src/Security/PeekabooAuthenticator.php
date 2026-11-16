@@ -3,6 +3,7 @@
 namespace Peekabooauth\PeekabooBundle\Security;
 
 use Peekabooauth\PeekabooBundle\DTO\UserDTO;
+use Peekabooauth\PeekabooBundle\Services\TokenStorage;
 use Peekabooauth\PeekabooBundle\UserLoader\UserLoaderRegistry;
 use Peekabooauth\PeekabooBundle\UserProvider\UserProvider;
 use Psr\Log\LoggerInterface;
@@ -23,22 +24,31 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 
 class PeekabooAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
+    private const string AUTH_ROUTE = 'peekaboo_auth';
+
     public function __construct(
         private readonly RouterInterface $router,
         private readonly UserProvider $userProvider,
         private readonly UserLoaderRegistry $userLoaderRegistry,
         private readonly LoggerInterface $logger = new NullLogger(),
+        private readonly ?TokenStorage $tokenStorage = null,
     ) {
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     protected function getLoginUrl(Request $request): string
     {
-        return $this->router->generate('peekaboo_auth');
+        return $this->router->generate(self::AUTH_ROUTE);
     }
 
     public function supports(Request $request): bool
     {
+        // AuthController stores the token itself. Authenticating here with a stale cookie would fail,
+        // redirect back to this route and drop the fresh ?__peekaboo_code: an endless redirect loop.
+        if ($request->attributes->get('_route') === self::AUTH_ROUTE) {
+            return false;
+        }
+
         return $this->userLoaderRegistry->isAuth();
     }
 
@@ -71,7 +81,12 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
         $this->logger->warning('peekaboo_bad_auth', ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
         $this->userLoaderRegistry->clearTokenStorageUser();
 
-        return new RedirectResponse($this->getLoginUrl($request));
+        $response = new RedirectResponse($this->getLoginUrl($request));
+        // Clearing the session alone is not enough: TokenStorage falls back to the cookie,
+        // so the rejected token would be read again on the next request.
+        $this->tokenStorage?->clearToken($response);
+
+        return $response;
     }
 
     public function start(Request $request, ?AuthenticationException $authException = null): Response
