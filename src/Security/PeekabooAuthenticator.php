@@ -45,7 +45,8 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
     {
         // AuthController stores the token itself. Authenticating here with a stale cookie would fail,
         // redirect back to this route and drop the fresh ?__peekaboo_code: an endless redirect loop.
-        if ($request->attributes->get('_route') === self::AUTH_ROUTE) {
+        // API credentials (bearer, API key, basic) are still checked, so bad ones keep getting 401/403.
+        if ($request->attributes->get('_route') === self::AUTH_ROUTE && !$this->userLoaderRegistry->isApiAuth()) {
             return false;
         }
 
