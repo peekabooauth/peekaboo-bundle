@@ -82,7 +82,7 @@ class ClientTest extends TestCase
 
         $client->getUserByApiKey('k');
 
-        self::assertContains('User-Agent: peekaboo-bundle/1.8.3', $headers);
+        self::assertContains('User-Agent: peekaboo-bundle/1.8.4', $headers);
     }
 
     private function exchangeClient(MockHttpClient $httpClient): Client
@@ -115,7 +115,7 @@ class ClientTest extends TestCase
             ['app' => 'vostok-admin', 'code' => 'c0de', 'signature' => md5('vostok-admin,c0de' . 'admin-secret')],
             json_decode((string)$captured['body'], true)
         );
-        self::assertContains('User-Agent: peekaboo-bundle/1.8.3', $captured['headers']);
+        self::assertContains('User-Agent: peekaboo-bundle/1.8.4', $captured['headers']);
     }
 
     public function testExchangeCodeForwardsClientIp(): void
