@@ -4,6 +4,8 @@ namespace Peekabooauth\PeekabooBundle\Services;
 
 use Peekabooauth\PeekabooBundle\Client\Client;
 use Peekabooauth\PeekabooBundle\Client\DevHelper;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +21,7 @@ class TokenStorage
         private readonly Client $client,
         private readonly string $tokenName,
         private readonly string $codeName = '__peekaboo_code',
+        private readonly LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
@@ -35,7 +38,9 @@ class TokenStorage
             if ($code) {
                 try {
                     $token = $this->client->exchangeCode((string)$code);
-                } catch (Throwable) {
+                } catch (Throwable $e) {
+                    $this->logger->warning('peekaboo_code_exchange_failed', ['exception' => $e::class]);
+
                     return false;
                 }
             } else {
