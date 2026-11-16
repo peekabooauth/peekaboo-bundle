@@ -37,7 +37,7 @@ class TokenStorage
             $code = $request->query->get($this->codeName);
             if ($code) {
                 try {
-                    $token = $this->client->exchangeCode((string)$code);
+                    $token = $this->client->exchangeCode((string)$code, $request->getClientIp());
                 } catch (Throwable $e) {
                     $this->logger->warning('peekaboo_code_exchange_failed', ['exception' => $e::class]);
 
