@@ -3,6 +3,7 @@
 namespace Peekabooauth\PeekabooBundle\Services;
 
 use Peekabooauth\PeekabooBundle\DTO\IdentityRequestDTO;
+use Peekabooauth\PeekabooBundle\PeekabooBundle;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -31,6 +32,7 @@ class AuthRedirectBuilder
             'redirect_url' => $redirectUrl,
             'app' => $this->app,
             'autologin' => $this->identityServerAutologin,
+            'v' => PeekabooBundle::VERSION,
         ];
         $data['signature'] = $this->signature->generateSignature($data, $this->secret);
 

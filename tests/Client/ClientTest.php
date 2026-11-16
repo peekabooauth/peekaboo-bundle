@@ -60,4 +60,27 @@ class ClientTest extends TestCase
         self::assertSame('vostok-admin', $query['app'] ?? null);
         self::assertSame(new Signature()->generateSignature(['vostok-admin'], 'admin-secret'), $query['signature'] ?? null);
     }
+
+    public function testRequestsSendBundleUserAgent(): void
+    {
+        $headers = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$headers): MockResponse {
+            $headers = $options['headers'];
+
+            return new MockResponse('{"email":"vl+api@example.com","name":"vl+api","roles":["ROLE_API"]}');
+        });
+
+        $client = new Client(
+            identityServerUrlInternal: 'https://peekabooauth.com',
+            app: 'vostok-admin',
+            secret: 'admin-secret',
+            httpClient: $httpClient,
+            signature: new Signature(),
+            devHelper: new DevHelper('https://peekabooauth.com'),
+        );
+
+        $client->getUserByApiKey('k');
+
+        self::assertContains('User-Agent: peekaboo-bundle/1.10.0', $headers);
+    }
 }
