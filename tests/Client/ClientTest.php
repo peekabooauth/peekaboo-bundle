@@ -6,6 +6,7 @@ use Peekabooauth\PeekabooBundle\Client\Client;
 use Peekabooauth\PeekabooBundle\Client\DevHelper;
 use Peekabooauth\PeekabooBundle\Services\Signature;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -82,5 +83,58 @@ class ClientTest extends TestCase
         $client->getUserByApiKey('k');
 
         self::assertContains('User-Agent: peekaboo-bundle/1.10.0', $headers);
+    }
+
+    private function exchangeClient(MockHttpClient $httpClient): Client
+    {
+        return new Client(
+            identityServerUrlInternal: 'https://peekabooauth.com',
+            app: 'vostok-admin',
+            secret: 'admin-secret',
+            httpClient: $httpClient,
+            signature: new Signature(),
+            devHelper: new DevHelper('https://peekabooauth.com'),
+        );
+    }
+
+    public function testExchangeCodePostsSignedCodeAndReturnsToken(): void
+    {
+        $captured = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$captured): MockResponse {
+            $captured = ['method' => $method, 'url' => $url, 'body' => $options['body'] ?? null, 'headers' => $options['headers']];
+
+            return new MockResponse('{"token":"jwt-1"}');
+        });
+
+        $token = $this->exchangeClient($httpClient)->exchangeCode('c0de');
+
+        self::assertSame('jwt-1', $token);
+        self::assertSame('POST', $captured['method']);
+        self::assertSame('https://peekabooauth.com/api/token-by-code', $captured['url']);
+        self::assertSame(
+            ['app' => 'vostok-admin', 'code' => 'c0de', 'signature' => md5('vostok-admin,c0de' . 'admin-secret')],
+            json_decode((string)$captured['body'], true)
+        );
+        self::assertContains('User-Agent: peekaboo-bundle/1.10.0', $captured['headers']);
+    }
+
+    public function testExchangeCodeThrowsOnRejectedCode(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse('{"error":"invalid_code"}', ['http_code' => 400]));
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('peekaboo_code_exchange_error');
+
+        $this->exchangeClient($httpClient)->exchangeCode('bad');
+    }
+
+    public function testExchangeCodeThrowsOnMissingToken(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse('{"token":""}'));
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('peekaboo_code_exchange_error');
+
+        $this->exchangeClient($httpClient)->exchangeCode('c0de');
     }
 }

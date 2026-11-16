@@ -79,6 +79,7 @@ services:
     Peekabooauth\PeekabooBundle\Services\TokenStorage:
         bind:
             $tokenName: '__peekaboo_token'
+            $codeName: '__peekaboo_code'
 
     Peekabooauth\PeekabooBundle\Listener\LogoutListener:
         tags:
