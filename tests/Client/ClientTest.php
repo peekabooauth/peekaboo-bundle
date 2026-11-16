@@ -5,7 +5,9 @@ namespace Peekabooauth\PeekabooBundle\Tests\Client;
 use Peekabooauth\PeekabooBundle\Client\Client;
 use Peekabooauth\PeekabooBundle\Client\DevHelper;
 use Peekabooauth\PeekabooBundle\Services\Signature;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -82,7 +84,7 @@ class ClientTest extends TestCase
 
         $client->getUserByApiKey('k');
 
-        self::assertContains('User-Agent: peekaboo-bundle/1.8.4', $headers);
+        self::assertContains('User-Agent: peekaboo-bundle/1.8.5', $headers);
     }
 
     private function exchangeClient(MockHttpClient $httpClient): Client
@@ -95,6 +97,41 @@ class ClientTest extends TestCase
             signature: new Signature(),
             devHelper: new DevHelper('https://peekabooauth.com'),
         );
+    }
+
+    /** @return iterable<string, array{int, string}> */
+    public static function provideRejectedStatuses(): iterable
+    {
+        yield '401 expired JWT' => [401, 'warning'];
+        yield '404 unknown API key' => [404, 'warning'];
+        yield '403 wrong app signature' => [403, 'error'];
+        yield '500 peekaboo error' => [500, 'error'];
+        yield '502 peekaboo down' => [502, 'error'];
+    }
+
+    #[DataProvider('provideRejectedStatuses')]
+    public function testGetUserLogsRejectedCredentialsAsWarningAndFaultsAsError(int $status, string $level): void
+    {
+        $body = '<html><head><title>' . $status . '</title></head></html>';
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())->method($level)
+            ->with('peekaboo_auth_error', ['status_code' => $status, 'content' => $body]);
+        $logger->expects(self::never())->method($level === 'error' ? 'warning' : 'error');
+
+        $client = new Client(
+            identityServerUrlInternal: 'https://peekabooauth.com',
+            app: 'vostok-admin',
+            secret: 'admin-secret',
+            httpClient: new MockHttpClient(new MockResponse($body, ['http_code' => $status])),
+            signature: new Signature(),
+            devHelper: new DevHelper('https://peekabooauth.com'),
+            logger: $logger,
+        );
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('peekaboo_auth_error');
+
+        $client->getUserByApiKey('admin-key');
     }
 
     public function testExchangeCodePostsSignedCodeAndReturnsToken(): void
@@ -115,7 +152,7 @@ class ClientTest extends TestCase
             ['app' => 'vostok-admin', 'code' => 'c0de', 'signature' => md5('vostok-admin,c0de' . 'admin-secret')],
             json_decode((string)$captured['body'], true)
         );
-        self::assertContains('User-Agent: peekaboo-bundle/1.8.4', $captured['headers']);
+        self::assertContains('User-Agent: peekaboo-bundle/1.8.5', $captured['headers']);
     }
 
     public function testExchangeCodeForwardsClientIp(): void

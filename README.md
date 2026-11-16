@@ -161,6 +161,12 @@ Set `PEEKABOO_AUTOLOGIN` to skip the login form and authenticate automatically:
 | `facebook_js` | Show login page, auto-click Facebook button |
 | (empty)       | Show login form without autologin           |
 
+## Upgrading to 1.8.5 (same change as 1.10.1 on main)
+
+- `Client` now logs `peekaboo_auth_error` at `warning` (not `error`) when Peekaboo answers 401 (expired or foreign
+  JWT) or 404 (unknown API key), so rejected user credentials no longer flood Sentry. 403 (this app's signature or
+  secret is wrong), 5xx (Peekaboo down) and any other status stay `error`. No configuration change is needed.
+
 ## Upgrading to 1.8.4 (same change as 1.10.1 on main)
 
 - Fixes an endless redirect loop on `/peekaboo/auth` (the browser's "redirected you too many times") after the
