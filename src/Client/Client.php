@@ -3,6 +3,7 @@
 namespace Peekabooauth\PeekabooBundle\Client;
 
 use Peekabooauth\PeekabooBundle\DTO\UserDTO;
+use Peekabooauth\PeekabooBundle\PeekabooBundle;
 use Peekabooauth\PeekabooBundle\Services\Signature;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -34,6 +35,7 @@ class Client
         $options = [
             'headers' => [
                 'content-type' => 'application/json',
+                'User-Agent' => 'peekaboo-bundle/' . PeekabooBundle::VERSION,
                 self::X_CLIENT_IP => $clientIp,
                 self::X_API_KEY => $apiKey
             ],
@@ -58,6 +60,7 @@ class Client
             'auth_bearer' => $token,
             'headers' => [
                 'content-type' => 'application/json',
+                'User-Agent' => 'peekaboo-bundle/' . PeekabooBundle::VERSION,
                 self::X_CLIENT_IP => $clientIp,
             ],
         ];
