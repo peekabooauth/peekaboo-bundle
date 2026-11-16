@@ -157,6 +157,15 @@ Set `PEEKABOO_AUTOLOGIN` to skip the login form and authenticate automatically:
 | `facebook_js` | Show login page, auto-click Facebook button |
 | (empty)       | Show login form without autologin           |
 
+## Upgrading to 1.10.1
+
+- Fixes an endless redirect loop on `/peekaboo/auth` (the browser's "redirected you too many times") after the
+  Peekaboo server rejects a stored token. A failed login now also expires the `__peekaboo_token` cookie, not just
+  the session copy, and `/peekaboo/auth` no longer runs authentication, so a fresh login code always reaches it.
+  Keep `/peekaboo/auth` as `PUBLIC_ACCESS` in `access_control`, as the install instructions show.
+- `PeekabooAuthenticator`'s constructor gained an optional `TokenStorage` (autowired). This only matters if you
+  construct or decorate the authenticator yourself.
+
 ## Upgrading to 1.10.0
 
 - Requires a Peekaboo server that has `/api/token-by-code`. Deploy the server first: against an older server
