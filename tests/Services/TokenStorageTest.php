@@ -51,6 +51,16 @@ class TokenStorageTest extends TestCase
         self::assertTrue($cookie->isHttpOnly());
     }
 
+    public function testCodeExchangeForwardsUserIp(): void
+    {
+        $client = $this->createMock(Client::class);
+        $client->expects(self::once())->method('exchangeCode')->with('c0de', '203.0.113.7')->willReturn('jwt-1');
+
+        $request = Request::create('/peekaboo/auth', 'GET', ['__peekaboo_code' => 'c0de'], [], [], ['REMOTE_ADDR' => '203.0.113.7']);
+
+        self::assertTrue($this->storage($request, $client)->storageToken(new Response()));
+    }
+
     public function testLegacyTokenStillAccepted(): void
     {
         $client = $this->createMock(Client::class);

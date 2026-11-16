@@ -79,13 +79,16 @@ class Client
      *
      * @throws Throwable
      */
-    public function exchangeCode(string $code): string
+    public function exchangeCode(string $code, ?string $clientIp = null): string
     {
         $response = $this->httpClient->request(
             method: Request::METHOD_POST,
             url: sprintf('%s/api/token-by-code', rtrim($this->identityServerUrlInternal, '/')),
             options: [
-                'headers' => ['User-Agent' => self::userAgent()],
+                'headers' => [
+                    'User-Agent' => self::userAgent(),
+                    self::X_CLIENT_IP => $clientIp,
+                ],
                 'json' => [
                     'app' => $this->app,
                     'code' => $code,

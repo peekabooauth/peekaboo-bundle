@@ -118,6 +118,20 @@ class ClientTest extends TestCase
         self::assertContains('User-Agent: peekaboo-bundle/1.10.0', $captured['headers']);
     }
 
+    public function testExchangeCodeForwardsClientIp(): void
+    {
+        $captured = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$captured): MockResponse {
+            $captured = $options['headers'];
+
+            return new MockResponse('{"token":"jwt-1"}');
+        });
+
+        $this->exchangeClient($httpClient)->exchangeCode('c0de', '203.0.113.7');
+
+        self::assertContains('x-client-ip: 203.0.113.7', $captured);
+    }
+
     public function testExchangeCodeThrowsOnRejectedCode(): void
     {
         $httpClient = new MockHttpClient(new MockResponse('{"error":"invalid_code"}', ['http_code' => 400]));
