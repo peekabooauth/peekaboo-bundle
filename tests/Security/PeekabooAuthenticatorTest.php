@@ -7,6 +7,7 @@ use Peekabooauth\PeekabooBundle\Client\Client;
 use Peekabooauth\PeekabooBundle\Client\DevHelper;
 use Peekabooauth\PeekabooBundle\Security\PeekabooAuthenticator;
 use Peekabooauth\PeekabooBundle\Services\TokenStorage;
+use Peekabooauth\PeekabooBundle\UserLoader\JwtTokenUserLoader;
 use Peekabooauth\PeekabooBundle\UserLoader\TokenStorageUserLoader;
 use Peekabooauth\PeekabooBundle\UserLoader\UserLoaderRegistry;
 use Peekabooauth\PeekabooBundle\UserProvider\UserProvider;
@@ -23,7 +24,7 @@ class PeekabooAuthenticatorTest extends TestCase
 {
     private Session $session;
 
-    private function authenticator(Request $request): PeekabooAuthenticator
+    private function authenticator(Request $request, bool $withJwtLoader = false): PeekabooAuthenticator
     {
         $this->session = new Session(new MockArraySessionStorage());
         $request->setSession($this->session);
@@ -37,10 +38,11 @@ class PeekabooAuthenticatorTest extends TestCase
             client: $client,
             tokenName: '__peekaboo_token',
         );
-        $registry = new UserLoaderRegistry(
-            new ArrayIterator([TokenStorageUserLoader::class => new TokenStorageUserLoader($client, new ArrayAdapter(), $tokenStorage, $stack)]),
-            [],
-        );
+        $loaders = [TokenStorageUserLoader::class => new TokenStorageUserLoader($client, new ArrayAdapter(), $tokenStorage, $stack)];
+        if ($withJwtLoader) {
+            $loaders = [JwtTokenUserLoader::class => new JwtTokenUserLoader($client, new ArrayAdapter(), $stack)] + $loaders;
+        }
+        $registry = new UserLoaderRegistry(new ArrayIterator($loaders), []);
         $router = $this->createStub(RouterInterface::class);
         $router->method('generate')->willReturn('/peekaboo/auth');
 
@@ -75,6 +77,15 @@ class PeekabooAuthenticatorTest extends TestCase
         $request->attributes->set('_route', 'peekaboo_auth');
 
         self::assertFalse($this->authenticator($request)->supports($request));
+    }
+
+    public function testApiCredentialsAreStillCheckedOnTheAuthRoute(): void
+    {
+        // Bad API credentials must keep failing with 401/403 here, not fall through to the controller's redirect.
+        $request = Request::create('/peekaboo/auth', 'GET', [], ['__peekaboo_token' => 'rejected-jwt'], [], ['HTTP_AUTHORIZATION' => 'Bearer bad-jwt']);
+        $request->attributes->set('_route', 'peekaboo_auth');
+
+        self::assertTrue($this->authenticator($request, withJwtLoader: true)->supports($request));
     }
 
     public function testOtherRoutesWithACookieAreStillAuthenticated(): void
