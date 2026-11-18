@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use RuntimeException;
 use Throwable;
 
 class JwtTokenUserLoader implements UserLoaderInterface
@@ -29,6 +30,11 @@ class JwtTokenUserLoader implements UserLoaderInterface
      */
     public function loadUser(): UserInterface
     {
+        // Checked before the cache: an entry written by an older bundle still has the full 600s TTL.
+        if (JwtExpiry::isExpired($this->getJwtToken())) {
+            throw new RuntimeException('peekaboo_jwt_expired');
+        }
+
         return $this->cache->get(md5($this->getJwtToken() . __CLASS__), function (ItemInterface $item) {
             // Never serve a cached user past the token's own expiry.
             $item->expiresAfter(JwtExpiry::cacheTtl($this->getJwtToken(), self::USER_CACHE_TTL));
