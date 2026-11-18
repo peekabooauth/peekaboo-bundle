@@ -161,6 +161,16 @@ Set `PEEKABOO_AUTOLOGIN` to skip the login form and authenticate automatically:
 | `facebook_js` | Show login page, auto-click Facebook button |
 | (empty)       | Show login form without autologin           |
 
+## Upgrading to 1.8.6 (same change as 1.11.0 on main)
+
+- The bundle now reads the JWT's `exp` claim. An expired token is rejected locally, without calling Peekaboo:
+  a browser is sent to log in again at once, and Peekaboo no longer logs (and alerts on) a failed `jwt` login
+  each time a user's token runs out. The claim is read without checking the signature, so it is only used to
+  give up on a token, never to accept one; every other token is still verified by Peekaboo.
+- The `__peekaboo_token` cookie now expires together with the JWT (still at most 24 hours), and a
+  cached user is never kept past the token's expiry (it used to live up to 10 more minutes).
+- No configuration or constructor changes.
+
 ## Upgrading to 1.8.5 (same change as 1.10.1 on main)
 
 - `Client` now logs `peekaboo_auth_error` at `warning` (not `error`) when Peekaboo answers 401 (expired or foreign

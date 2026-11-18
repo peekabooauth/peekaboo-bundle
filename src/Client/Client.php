@@ -4,6 +4,7 @@ namespace Peekabooauth\PeekabooBundle\Client;
 
 use Peekabooauth\PeekabooBundle\DTO\UserDTO;
 use Peekabooauth\PeekabooBundle\PeekabooBundle;
+use Peekabooauth\PeekabooBundle\Services\JwtExpiry;
 use Peekabooauth\PeekabooBundle\Services\Signature;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -62,6 +63,13 @@ class Client
     /** @throws Throwable */
     public function getUserByJwt(string $token, ?string $clientIp = null): UserDTO
     {
+        // Peekaboo could only answer 401 (and log a failed login): fail here, so the user is sent to log in again.
+        if (JwtExpiry::isExpired($token)) {
+            $this->logger->info('peekaboo_jwt_expired', ['expired_at' => JwtExpiry::expiresAt($token)]);
+
+            throw new RuntimeException('peekaboo_jwt_expired');
+        }
+
         $options = [
             'auth_bearer' => $token,
             'headers' => [
