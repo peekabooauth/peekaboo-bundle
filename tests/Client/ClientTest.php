@@ -5,6 +5,7 @@ namespace Peekabooauth\PeekabooBundle\Tests\Client;
 use Peekabooauth\PeekabooBundle\Client\Client;
 use Peekabooauth\PeekabooBundle\Client\DevHelper;
 use Peekabooauth\PeekabooBundle\Services\Signature;
+use Peekabooauth\PeekabooBundle\Tests\Services\JwtExpiryTest;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -84,7 +85,7 @@ class ClientTest extends TestCase
 
         $client->getUserByApiKey('k');
 
-        self::assertContains('User-Agent: peekaboo-bundle/1.10.1', $headers);
+        self::assertContains('User-Agent: peekaboo-bundle/1.11.0', $headers);
     }
 
     private function exchangeClient(MockHttpClient $httpClient): Client
@@ -152,7 +153,7 @@ class ClientTest extends TestCase
             ['app' => 'vostok-admin', 'code' => 'c0de', 'signature' => md5('vostok-admin,c0de' . 'admin-secret')],
             json_decode((string)$captured['body'], true)
         );
-        self::assertContains('User-Agent: peekaboo-bundle/1.10.1', $captured['headers']);
+        self::assertContains('User-Agent: peekaboo-bundle/1.11.0', $captured['headers']);
     }
 
     public function testExchangeCodeForwardsClientIp(): void
@@ -177,6 +178,56 @@ class ClientTest extends TestCase
         $this->expectExceptionMessage('peekaboo_code_exchange_error');
 
         $this->exchangeClient($httpClient)->exchangeCode('bad');
+    }
+
+    public function testExpiredJwtIsRejectedWithoutAskingPeekaboo(): void
+    {
+        $httpClient = new MockHttpClient(function (): MockResponse {
+            self::fail('an expired JWT must not reach peekaboo');
+        });
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())->method('info')->with('peekaboo_jwt_expired', ['expired_at' => 1700000000]);
+        $logger->expects(self::never())->method('warning');
+        $logger->expects(self::never())->method('error');
+
+        $client = new Client(
+            identityServerUrlInternal: 'https://peekabooauth.com',
+            app: 'vostok-admin',
+            secret: 'admin-secret',
+            httpClient: $httpClient,
+            signature: new Signature(),
+            devHelper: new DevHelper('https://peekabooauth.com'),
+            logger: $logger,
+        );
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('peekaboo_jwt_expired');
+
+        $client->getUserByJwt(JwtExpiryTest::jwt(['exp' => 1700000000, 'username' => 'vl@example.com']));
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function provideJwtsForPeekaboo(): iterable
+    {
+        yield 'not expired yet' => [JwtExpiryTest::jwt(['exp' => time() + 3600])];
+        yield 'no exp claim' => [JwtExpiryTest::jwt(['username' => 'vl@example.com'])];
+        yield 'not a JWT' => ['opaque-token'];
+    }
+
+    #[DataProvider('provideJwtsForPeekaboo')]
+    public function testJwtWithoutPassedExpiryIsLeftToPeekaboo(string $token): void
+    {
+        $calls = 0;
+        $httpClient = new MockHttpClient(function () use (&$calls): MockResponse {
+            $calls++;
+
+            return new MockResponse('{"email":"vl@example.com","name":"vl","roles":["ROLE_USER"]}');
+        });
+
+        $user = $this->exchangeClient($httpClient)->getUserByJwt($token);
+
+        self::assertSame(1, $calls);
+        self::assertSame('vl@example.com', $user->getUserIdentifier());
     }
 
     public function testExchangeCodeThrowsOnMissingToken(): void
