@@ -15,6 +15,8 @@ use Throwable;
 
 class TokenStorage
 {
+    private const int COOKIE_MAX_TTL = 86400;
+
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly DevHelper $devHelper,
@@ -52,8 +54,8 @@ class TokenStorage
                 $response->headers->setCookie(Cookie::create(
                     name: $this->tokenName,
                     value: $token,
-                    // Live as long as the JWT itself; a token without a readable "exp" keeps the old 24h.
-                    expire: JwtExpiry::expiresAt($token) ?? time() + 86400,
+                    // End with the JWT, but never past the old 24h: "exp" is unverified, so it may only shorten.
+                    expire: min(JwtExpiry::expiresAt($token) ?? PHP_INT_MAX, time() + self::COOKIE_MAX_TTL),
                     httpOnly: true,
                 ));
 

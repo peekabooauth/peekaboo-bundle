@@ -163,7 +163,7 @@ Set `PEEKABOO_AUTOLOGIN` to skip the login form and authenticate automatically:
   a browser is sent to log in again at once, and Peekaboo no longer logs (and alerts on) a failed `jwt` login
   each time a user's token runs out. The claim is read without checking the signature, so it is only used to
   give up on a token, never to accept one; every other token is still verified by Peekaboo.
-- The `__peekaboo_token` cookie now expires together with the JWT instead of after a fixed 24 hours, and a
+- The `__peekaboo_token` cookie now expires together with the JWT (still at most 24 hours), and a
   cached user is never kept past the token's expiry (it used to live up to 10 more minutes).
 - No configuration or constructor changes.
 

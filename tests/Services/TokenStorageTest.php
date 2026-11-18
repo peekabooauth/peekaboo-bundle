@@ -87,6 +87,17 @@ class TokenStorageTest extends TestCase
         self::assertSame($exp, $response->headers->getCookies()[0]->getExpiresTime());
     }
 
+    public function testUnverifiedFarExpiryCannotStretchTheCookiePastADay(): void
+    {
+        $response = new Response();
+        $jwt = JwtExpiryTest::jwt(['exp' => time() + 10 * 365 * 86400]);
+
+        $storage = $this->storage(Request::create('/peekaboo/auth', 'GET', ['__peekaboo_token' => $jwt]), $this->createStub(Client::class));
+        self::assertTrue($storage->storageToken($response));
+
+        self::assertLessThanOrEqual(time() + 86400, $response->headers->getCookies()[0]->getExpiresTime());
+    }
+
     public function testCookieWithoutReadableExpiryLastsADay(): void
     {
         $response = new Response();
