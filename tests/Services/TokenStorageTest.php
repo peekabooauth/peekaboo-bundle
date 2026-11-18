@@ -74,6 +74,32 @@ class TokenStorageTest extends TestCase
         self::assertSame('jwt-2', $response->headers->getCookies()[0]->getValue());
     }
 
+    public function testCookieExpiresWithTheJwt(): void
+    {
+        $exp = time() + 3600;
+        $jwt = JwtExpiryTest::jwt(['exp' => $exp, 'username' => 'vl@example.com']);
+        $client = $this->createStub(Client::class);
+        $client->method('exchangeCode')->willReturn($jwt);
+        $response = new Response();
+
+        self::assertTrue($this->storage(Request::create('/peekaboo/auth', 'GET', ['__peekaboo_code' => 'c0de']), $client)->storageToken($response));
+
+        self::assertSame($exp, $response->headers->getCookies()[0]->getExpiresTime());
+    }
+
+    public function testCookieWithoutReadableExpiryLastsADay(): void
+    {
+        $response = new Response();
+        $before = time();
+
+        $storage = $this->storage(Request::create('/peekaboo/auth', 'GET', ['__peekaboo_token' => 'opaque']), $this->createStub(Client::class));
+        self::assertTrue($storage->storageToken($response));
+
+        $expires = $response->headers->getCookies()[0]->getExpiresTime();
+        self::assertGreaterThanOrEqual($before + 86400, $expires);
+        self::assertLessThanOrEqual(time() + 86400, $expires);
+    }
+
     public function testFailedExchangeStoresNothing(): void
     {
         $client = $this->createStub(Client::class);

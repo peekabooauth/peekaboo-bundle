@@ -52,7 +52,8 @@ class TokenStorage
                 $response->headers->setCookie(Cookie::create(
                     name: $this->tokenName,
                     value: $token,
-                    expire: time() + 86400,
+                    // Live as long as the JWT itself; a token without a readable "exp" keeps the old 24h.
+                    expire: JwtExpiry::expiresAt($token) ?? time() + 86400,
                     httpOnly: true,
                 ));
 

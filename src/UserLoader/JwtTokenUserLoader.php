@@ -4,6 +4,7 @@ namespace Peekabooauth\PeekabooBundle\UserLoader;
 
 use Peekabooauth\PeekabooBundle\Client\Client;
 use Peekabooauth\PeekabooBundle\DTO\UserDTO;
+use Peekabooauth\PeekabooBundle\Services\JwtExpiry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -13,6 +14,8 @@ use Throwable;
 
 class JwtTokenUserLoader implements UserLoaderInterface
 {
+    private const int USER_CACHE_TTL = 600;
+
     public function __construct(
         private readonly Client $client,
         private readonly CacheInterface $cache,
@@ -27,7 +30,8 @@ class JwtTokenUserLoader implements UserLoaderInterface
     public function loadUser(): UserInterface
     {
         return $this->cache->get(md5($this->getJwtToken() . __CLASS__), function (ItemInterface $item) {
-            $item->expiresAfter(600);
+            // Never serve a cached user past the token's own expiry.
+            $item->expiresAfter(JwtExpiry::cacheTtl($this->getJwtToken(), self::USER_CACHE_TTL));
 
             return $this->client->getUserByJwt($this->getJwtToken(), $this->getRequest()->getClientIp());
         });
