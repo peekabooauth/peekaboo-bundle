@@ -66,6 +66,12 @@ class TokenStorage
         return false;
     }
 
+    /** Whether this request came back from Peekaboo carrying a one-time login code. */
+    public function hasLoginCode(): bool
+    {
+        return (bool)$this->requestStack->getCurrentRequest()?->query->get($this->codeName);
+    }
+
     public function getToken(): ?string
     {
         if ($this->devHelper->isDev()) {
