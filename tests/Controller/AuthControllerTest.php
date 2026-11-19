@@ -114,9 +114,15 @@ class AuthControllerTest extends TestCase
         self::assertTrue(self::cookie($response, '__peekaboo_token')?->isCleared());
     }
 
-    public function testForgedCounterCannotSkipTheRetry(): void
+    public static function forgedCounters(): array
     {
-        $request = Request::create('/peekaboo/auth', 'GET', ['__peekaboo_code' => 'c0de'], [AuthController::FAILURES_COOKIE => '-5']);
+        return [['-5'], ['abc'], ['2garbage'], ['1e2'], [' 1'], ['1234']];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('forgedCounters')]
+    public function testForgedCounterCannotSkipTheRetry(string $counter): void
+    {
+        $request = Request::create('/peekaboo/auth', 'GET', ['__peekaboo_code' => 'c0de'], [AuthController::FAILURES_COOKIE => $counter]);
 
         $response = $this->auth($request, $this->rejectingClient());
 
