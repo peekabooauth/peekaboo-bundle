@@ -43,7 +43,9 @@ class AuthController extends AbstractController
         if ($this->tokenStorage->hasLoginCode()) {
             // Peekaboo's autologin answers every retry with a fresh code; if the exchange keeps failing
             // (Peekaboo unreachable, wrong app secret) redirecting again would loop until the browser gives up.
-            $failures = max(0, (int)$request->cookies->get(self::FAILURES_COOKIE)) + 1;
+            $previous = (string)$request->cookies->get(self::FAILURES_COOKIE);
+            // Anything but plain digits ("2x", "1e2", "-5") counts as no failure yet, so it cannot skip the retry.
+            $failures = (preg_match('/^\d{1,3}$/D', $previous) ? (int)$previous : 0) + 1;
             if ($failures >= self::MAX_FAILED_EXCHANGES) {
                 $this->logger->error('peekaboo_login_failed', ['failed_exchanges' => $failures]);
 
