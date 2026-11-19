@@ -157,6 +157,17 @@ Set `PEEKABOO_AUTOLOGIN` to skip the login form and authenticate automatically:
 | `facebook_js` | Show login page, auto-click Facebook button |
 | (empty)       | Show login form without autologin           |
 
+## Upgrading to 1.11.1
+
+- Fixes another endless redirect loop on `/peekaboo/auth`. When exchanging the login code keeps failing
+  (Peekaboo unreachable, a wrong `PEEKABOO_APPLICATION_SECRET`), Peekaboo's autologin answered every retry with
+  a fresh code that failed the same way, until the browser gave up with "redirected you too many times". Now the
+  first failure still retries once; a second failure in a row shows a plain "Login failed. Try again" page
+  (HTTP 503) and logs `peekaboo_login_failed` at error level. The failure counter is the short-lived
+  `__peekaboo_auth_failures` cookie (5 minutes).
+- `AuthController::auth()` now takes the `Request`, and its constructor gained an optional `LoggerInterface`
+  (autowired). This only matters if you construct, extend or decorate the controller yourself.
+
 ## Upgrading to 1.11.0
 
 - The bundle now reads the JWT's `exp` claim. An expired token is rejected locally, without calling Peekaboo:

@@ -30,9 +30,9 @@ class AuthRedirectBuilderTest extends TestCase
 
         parse_str((string)parse_url($url, PHP_URL_QUERY), $query);
         self::assertSame(['redirect_url', 'app', 'signature', 'autologin', 'v'], array_keys($query));
-        self::assertSame('1.11.0', $query['v']);
+        self::assertSame('1.11.1', $query['v']);
         self::assertSame(
-            new Signature()->generateSignature(['https://app.test/peekaboo/auth', 'test-app', '', '1.11.0'], 's'),
+            new Signature()->generateSignature(['https://app.test/peekaboo/auth', 'test-app', '', '1.11.1'], 's'),
             $query['signature'],
         );
     }
