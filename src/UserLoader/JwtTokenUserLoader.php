@@ -56,7 +56,10 @@ class JwtTokenUserLoader implements UserLoaderInterface
 
     private function getJwtToken(): string
     {
-        $result = $this->getRequest()->headers->get('Authorization', '');
+        // "Authorization: Bearer <jwt>" (OAuth clients: Claude, ChatGPT) carries the scheme; a bare token is
+        // accepted too. Only the token may reach the client: HttpClient's auth_bearer refuses the space, so the
+        // request to Peekaboo would never be sent.
+        $result = trim((string)preg_replace('#^Bearer\s+#i', '', trim($this->getRequest()->headers->get('Authorization', ''))));
         if ($result === '') {
             $result = $this->getRequest()->query->get('bearer', '');
         }
