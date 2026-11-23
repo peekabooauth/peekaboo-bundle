@@ -33,7 +33,7 @@ class JwtTokenUserLoaderTest extends TestCase
         $jwt = JwtExpiryTest::jwt(['exp' => time() + 600]);
         $user = new UserDTO(['email' => 'vl@example.com', 'name' => 'vl', 'roles' => ['ROLE_USER']]);
         $client = $this->createMock(Client::class);
-        $client->expects($this->once())->method('getUserByJwt')->with($jwt)->willReturn($user);
+        $client->expects($this->once())->method('getUserByJwt')->with($jwt, $this->anything())->willReturn($user);
 
         $loader = new JwtTokenUserLoader($client, new ArrayAdapter(), $this->stack(['HTTP_AUTHORIZATION' => sprintf($header, $jwt)]));
 
@@ -46,7 +46,7 @@ class JwtTokenUserLoaderTest extends TestCase
         $jwt = JwtExpiryTest::jwt(['exp' => time() + 600]);
         $user = new UserDTO(['email' => 'vl@example.com', 'name' => 'vl', 'roles' => ['ROLE_USER']]);
         $client = $this->createMock(Client::class);
-        $client->expects($this->once())->method('getUserByJwt')->with($jwt)->willReturn($user);
+        $client->expects($this->once())->method('getUserByJwt')->with($jwt, $this->anything())->willReturn($user);
         $stack = new RequestStack();
         $stack->push(Request::create('/?bearer=' . $jwt));
 
