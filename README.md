@@ -157,6 +157,15 @@ Set `PEEKABOO_AUTOLOGIN` to skip the login form and authenticate automatically:
 | `facebook_js` | Show login page, auto-click Facebook button |
 | (empty)       | Show login form without autologin           |
 
+## Upgrading to 1.11.2
+
+- Fixes every `Authorization: Bearer <jwt>` request being refused with 401 (403 on the stock firewall)
+  without ever reaching Peekaboo. The loader passed the whole header, scheme included, to HttpClient's
+  `auth_bearer`, which refuses the space and throws before sending. OAuth clients (Claude, ChatGPT, Claude Code)
+  always send the scheme, so no OAuth connection could work. The `Bearer` scheme (any case) is now stripped; a
+  bare token in the header and the `bearer` query or body parameter work as before.
+- No configuration or constructor changes.
+
 ## Upgrading to 1.11.1
 
 - Fixes another endless redirect loop on `/peekaboo/auth`. When exchanging the login code keeps failing
