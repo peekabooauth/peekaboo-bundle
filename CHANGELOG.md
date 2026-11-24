@@ -48,6 +48,11 @@ The `## Upgrading to X.Y.Z` sections in the README have migration details. Forma
 ### Fixed
 - Send `app` and `signature` with API key lookups, so Peekaboo only looks a key up within this application.
 
+## [1.8.10] - 2026-11-24
+Maintenance release on the 1.8 line (Symfony 6.4 / PHP 8.1).
+### Fixed
+- Backport of 1.12.1: Peekaboo's HTTP 429 ("Too many failed API key attempts") is logged as a `peekaboo_auth_error` warning, not an error.
+
 ## [1.8.9] - 2026-11-24
 Maintenance release on the 1.8 line (Symfony 6.4 / PHP 8.1).
 ### Changed
