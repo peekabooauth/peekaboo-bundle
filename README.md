@@ -161,6 +161,22 @@ Set `PEEKABOO_AUTOLOGIN` to skip the login form and authenticate automatically:
 | `facebook_js` | Show login page, auto-click Facebook button |
 | (empty)       | Show login form without autologin           |
 
+## Upgrading to 1.8.9 (same change as 1.12.0 on main)
+
+- **BREAKING:** `UserDTO::getRoles()` no longer adds `ROLE_USER`. A user now holds exactly the roles Peekaboo
+  granted for your application. Before, every authenticated identity got `ROLE_USER` on top: API keys and
+  basic-auth machine users (Prometheus included), users whose only role is `ROLE_DISABLED`, and users with no
+  role in your application at all. So `ROLE_USER` in `access_control`, `#[IsGranted]` or `is_granted()` let
+  all of them in, and a `role_hierarchy` entry `ROLE_USER: [...]` handed its children to all of them.
+- **Before upgrading,** find where your app checks `ROLE_USER` (`access_control`, `#[IsGranted('ROLE_USER')]`,
+  `isGranted('ROLE_USER')`, `is_granted('ROLE_USER')` in Twig, `ROLE_USER: [...]` in `role_hierarchy`). For
+  every role your human users hold, make sure it reaches `ROLE_USER` through `role_hierarchy`, e.g.
+  `ROLE_MANAGER: [ ROLE_USER ]`, or grant `ROLE_USER` in Peekaboo. Apps that never check `ROLE_USER` need no
+  change.
+- The local dev user (`IDENTITY_SERVER_URL_INTERNAL=https://peekabooauth.dev`) still has `ROLE_USER` among its
+  default roles; with `PEEKABOO_DEV_ROLES` it has exactly the roles you list.
+- No configuration or constructor changes.
+
 ## Upgrading to 1.8.8 (same change as 1.11.2 on main)
 
 - Fixes every `Authorization: Bearer <jwt>` request being refused with 401 (403 on the stock firewall)
