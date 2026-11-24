@@ -85,7 +85,7 @@ class ClientTest extends TestCase
 
         $client->getUserByApiKey('k');
 
-        self::assertContains('User-Agent: peekaboo-bundle/1.8.9', $headers);
+        self::assertContains('User-Agent: peekaboo-bundle/1.8.10', $headers);
     }
 
     private function exchangeClient(MockHttpClient $httpClient): Client
@@ -105,6 +105,7 @@ class ClientTest extends TestCase
     {
         yield '401 expired JWT' => [401, 'warning'];
         yield '404 unknown API key' => [404, 'warning'];
+        yield '429 too many failed API key attempts' => [429, 'warning'];
         yield '403 wrong app signature' => [403, 'error'];
         yield '500 peekaboo error' => [500, 'error'];
         yield '502 peekaboo down' => [502, 'error'];
@@ -153,7 +154,7 @@ class ClientTest extends TestCase
             ['app' => 'vostok-admin', 'code' => 'c0de', 'signature' => md5('vostok-admin,c0de' . 'admin-secret')],
             json_decode((string)$captured['body'], true)
         );
-        self::assertContains('User-Agent: peekaboo-bundle/1.8.9', $captured['headers']);
+        self::assertContains('User-Agent: peekaboo-bundle/1.8.10', $captured['headers']);
     }
 
     public function testExchangeCodeForwardsClientIp(): void
