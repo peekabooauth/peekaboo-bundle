@@ -5,6 +5,10 @@ and `1.8` (PHP 8.1+, Symfony 6.2–6.4); a 1.8.x entry after 1.9.0 is a backport
 The `## Upgrading to X.Y.Z` sections in the README have migration details. Format:
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [1.12.1] - 2026-11-24
+### Fixed
+- Log Peekaboo's HTTP 429 ("Too many failed API key attempts") on `/api/user-by-key` as a `peekaboo_auth_error` **warning**, like 401/404, instead of an error. It means a caller keeps sending wrong API keys (its credentials, not a fault), and at ERROR it reached Sentry on every request while the caller was throttled. 403, 5xx and unexpected statuses stay errors.
+
 ## [1.12.0] - 2026-11-24
 ### Changed
 - **BREAKING:** `UserDTO::getRoles()` no longer adds `ROLE_USER`; a user holds exactly the roles Peekaboo granted for the application. Before, every authenticated identity got `ROLE_USER` on top: API-key and basic-auth machine users (Prometheus included), `ROLE_DISABLED` users and users with no role in the application, so a `ROLE_USER` access rule, `isGranted('ROLE_USER')` or a `ROLE_USER: [...]` hierarchy entry let all of them in. Apps that gate on `ROLE_USER` must grant it through `role_hierarchy` (e.g. `ROLE_MANAGER: [ ROLE_USER ]`) or in Peekaboo; see "Upgrading to 1.12.0" in the README.
@@ -43,6 +47,11 @@ The `## Upgrading to X.Y.Z` sections in the README have migration details. Forma
 ## [1.9.0] - 2026-10-11
 ### Fixed
 - Send `app` and `signature` with API key lookups, so Peekaboo only looks a key up within this application.
+
+## [1.8.10] - 2026-11-24
+Maintenance release on the 1.8 line (Symfony 6.4 / PHP 8.1).
+### Fixed
+- Backport of 1.12.1: Peekaboo's HTTP 429 ("Too many failed API key attempts") is logged as a `peekaboo_auth_error` warning, not an error.
 
 ## [1.8.9] - 2026-11-24
 Maintenance release on the 1.8 line (Symfony 6.4 / PHP 8.1).
