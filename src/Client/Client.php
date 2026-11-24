@@ -20,10 +20,15 @@ class Client
     public const X_API_KEY = 'x-api-key';
 
     /**
-     * Peekaboo rejected the user's JWT (401) or did not find the API key (404): logged as a warning, not an error.
-     * Note: peekaboo also answers a wrong JWT-path signature with 404, which this cannot tell apart.
+     * Peekaboo rejected the user's JWT (401), did not find the API key (404) or is throttling a caller after repeated
+     * wrong API keys (429, "Too many failed API key attempts"): the caller's credentials, logged as a warning, not an
+     * error. Note: peekaboo also answers a wrong JWT-path signature with 404, which this cannot tell apart.
      */
-    private const array REJECTED_CREDENTIALS_STATUSES = [Response::HTTP_UNAUTHORIZED, Response::HTTP_NOT_FOUND];
+    private const array REJECTED_CREDENTIALS_STATUSES = [
+        Response::HTTP_UNAUTHORIZED,
+        Response::HTTP_NOT_FOUND,
+        Response::HTTP_TOO_MANY_REQUESTS,
+    ];
 
     public function __construct(
         private readonly string $identityServerUrlInternal,

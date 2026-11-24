@@ -105,6 +105,7 @@ class ClientTest extends TestCase
     {
         yield '401 expired JWT' => [401, 'warning'];
         yield '404 unknown API key' => [404, 'warning'];
+        yield '429 too many failed API key attempts' => [429, 'warning'];
         yield '403 wrong app signature' => [403, 'error'];
         yield '500 peekaboo error' => [500, 'error'];
         yield '502 peekaboo down' => [502, 'error'];

@@ -157,6 +157,14 @@ Set `PEEKABOO_AUTOLOGIN` to skip the login form and authenticate automatically:
 | `facebook_js` | Show login page, auto-click Facebook button |
 | (empty)       | Show login form without autologin           |
 
+## Upgrading to 1.12.1
+
+- `peekaboo_auth_error` with HTTP 429 ("Too many failed API key attempts ... retry after N seconds") is now logged as a
+  warning, like 401 and 404. Peekaboo answers 429 when one caller keeps sending wrong API keys: that is the caller's
+  credentials, not a fault, but at ERROR it reached Sentry (a Prometheus scraper with a stale key paged it on every
+  scrape). 403, 5xx and anything unexpected stay errors.
+- No configuration or constructor changes.
+
 ## Upgrading to 1.12.0
 
 - **BREAKING:** `UserDTO::getRoles()` no longer adds `ROLE_USER`. A user now holds exactly the roles Peekaboo
