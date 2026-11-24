@@ -167,8 +167,9 @@ Set `PEEKABOO_AUTOLOGIN` to skip the login form and authenticate automatically:
 - **Before upgrading,** find where your app checks `ROLE_USER` (`access_control`, `#[IsGranted('ROLE_USER')]`,
   `isGranted('ROLE_USER')`, `is_granted('ROLE_USER')` in Twig, `ROLE_USER: [...]` in `role_hierarchy`). For
   every role your human users hold, make sure it reaches `ROLE_USER` through `role_hierarchy`, e.g.
-  `ROLE_MANAGER: [ ROLE_USER ]`, or grant `ROLE_USER` in Peekaboo. Apps that never check `ROLE_USER` need no
-  change.
+  `ROLE_MANAGER: [ ROLE_USER ]`, or grant `ROLE_USER` in Peekaboo. A page meant for anyone who can log in, with
+  or without a role in your app, should require `IS_AUTHENTICATED` instead of `ROLE_USER`. Apps that never check
+  `ROLE_USER` need no change.
 - The local dev user (`IDENTITY_SERVER_URL_INTERNAL=https://peekabooauth.dev`) still has `ROLE_USER` among its
   default roles; with `PEEKABOO_DEV_ROLES` it has exactly the roles you list.
 - No configuration or constructor changes.
