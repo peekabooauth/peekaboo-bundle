@@ -20,12 +20,13 @@ class UserDTO implements UserInterface, JsonSerializable
         $this->name = $data['name'];
     }
 
+    /**
+     * Exactly the roles Peekaboo granted for this application. ROLE_USER is not added: an app that gates
+     * pages on it grants it through its role_hierarchy (before 1.12.0 / 1.8.9 every user, API keys included, got it).
+     */
     public function getRoles(): array
     {
-        $roles = $this->roles;
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
+        return array_values(array_unique($this->roles));
     }
 
     #[\Deprecated]
