@@ -27,7 +27,7 @@ Two lines are maintained in parallel; apps that cannot leave Symfony 6 stay on 1
 
 | Line | Branch | PHP | Symfony |
 |---|---|---|---|
-| 1.12.x | `main` | 8.4+ | 7.4+ / 8.0+ |
+| 1.13.x | `main` | 8.4+ | 7.4+ / 8.0+ |
 | 1.8.x | `1.8` | 8.1+ | 6.2 – 6.4 |
 
 - **Every bug and security fix ships on both lines.** Fix and test on `main` first, then backport: branch `backport/<topic>-1.8` off `origin/1.8` in its own worktree, carry the same change and tests, open a separate PR against `1.8`. A fix is done only when both PRs exist. New features go to `main` only unless asked.

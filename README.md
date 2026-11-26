@@ -157,6 +157,22 @@ Set `PEEKABOO_AUTOLOGIN` to skip the login form and authenticate automatically:
 | `facebook_js` | Show login page, auto-click Facebook button |
 | (empty)       | Show login form without autologin           |
 
+## Upgrading to 1.13.0
+
+- A request without credentials on a **stateless** firewall now gets **401** instead of a 302 to the Peekaboo login
+  page, unless it accepts `text/html`. API clients (`Accept: application/json`, `application/ld+json`,
+  `application/problem+json`, `*/*` or no `Accept` header, as curl and most HTTP clients send) see the 401 they can
+  act on. A browser navigation sends `Accept: text/html` and is still redirected to log in: the token cookie lets a
+  logged-in browser use a stateless firewall, so the login page is the right answer for it.
+- The body is `{"error":"unauthorized"}` for a JSON client (now including `application/ld+json` and
+  `application/problem+json`, e.g. API Platform) and the plain text `unauthorized` otherwise.
+- Stateful firewalls are unchanged: they redirect as before.
+- **Check before upgrading:** a client of a stateless firewall that relied on following the redirect (a script that
+  expected the login page, a test asserting 302) now gets 401. Asserting 401 is the fix.
+- `PeekabooAuthenticator`'s constructor gained an optional `?Security $security = null` (autowired; matters only if
+  you construct, extend or decorate the authenticator yourself). Without it the entry point redirects as before.
+- No configuration changes.
+
 ## Upgrading to 1.12.1
 
 - `peekaboo_auth_error` with HTTP 429 ("Too many failed API key attempts ... retry after N seconds") is now logged as a
