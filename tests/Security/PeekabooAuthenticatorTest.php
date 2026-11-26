@@ -118,6 +118,7 @@ class PeekabooAuthenticatorTest extends TestCase
         // the token cookie lets a browser use a stateless firewall too.
         yield 'stateless, json client' => [true, 'application/json', 401];
         yield 'stateless, json-ld client' => [true, 'application/ld+json', 401];
+        yield 'stateless, problem+json client' => [true, 'application/problem+json', 401];
         yield 'stateless, curl default accept' => [true, '*/*', 401];
         yield 'stateless, browser navigation' => [true, 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 302];
         yield 'stateful, json client' => [false, 'application/json', 302];
@@ -138,15 +139,26 @@ class PeekabooAuthenticatorTest extends TestCase
         }
     }
 
-    public function testUnauthorizedJsonLdClientGetsAJsonBody(): void
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function dataUnauthorizedBody(): iterable
     {
-        $request = Request::create('/api/things', 'GET', [], [], [], ['HTTP_ACCEPT' => 'application/ld+json']);
+        yield 'json-ld (API Platform)' => ['application/ld+json', '{"error":"unauthorized"}'];
+        yield 'problem+json' => ['application/problem+json', '{"error":"unauthorized"}'];
+        yield 'curl default accept' => ['*/*', 'unauthorized'];
+    }
+
+    #[DataProvider('dataUnauthorizedBody')]
+    public function testUnauthorizedBody(string $accept, string $expectedBody): void
+    {
+        $request = Request::create('/api/things', 'GET', [], [], [], ['HTTP_ACCEPT' => $accept]);
         $authenticator = $this->authenticator($request, security: $this->securityWithFirewall(true));
 
         $response = $authenticator->start($request);
 
         self::assertSame(401, $response->getStatusCode());
-        self::assertSame('{"error":"unauthorized"}', $response->getContent());
+        self::assertSame($expectedBody, $response->getContent());
     }
 
     public function testWithoutTheSecurityServiceTheEntryPointStillRedirects(): void
