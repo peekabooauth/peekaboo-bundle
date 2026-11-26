@@ -8,6 +8,7 @@ use Peekabooauth\PeekabooBundle\UserLoader\UserLoaderRegistry;
 use Peekabooauth\PeekabooBundle\UserProvider\UserProvider;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +33,7 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
         private readonly UserLoaderRegistry $userLoaderRegistry,
         private readonly LoggerInterface $logger = new NullLogger(),
         private readonly ?TokenStorage $tokenStorage = null,
+        private readonly ?Security $security = null,
     ) {
     }
 
@@ -92,11 +94,25 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
 
     public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
-        if ($this->userLoaderRegistry->isApiAuth()) {
+        if ($this->userLoaderRegistry->isApiAuth() || $this->isApiClientOnStatelessFirewall($request)) {
             return $this->createUnauthorizedResponse($request);
         }
 
         return new RedirectResponse($this->getLoginUrl($request));
+    }
+
+    /**
+     * A stateless firewall cannot hold a login session, so sending an API client to the HTML login page only hides
+     * the 401 it needs. A browser navigation (Accept: text/html) still gets the redirect: the token cookie lets a
+     * logged-in browser use a stateless firewall, so the login page is the right answer for it.
+     */
+    private function isApiClientOnStatelessFirewall(Request $request): bool
+    {
+        if ($this->security?->getFirewallConfig($request)?->isStateless() !== true) {
+            return false;
+        }
+
+        return !in_array('text/html', $request->getAcceptableContentTypes(), true);
     }
 
     private function createUnauthorizedResponse(Request $request): Response|JsonResponse
@@ -118,6 +134,8 @@ class PeekabooAuthenticator extends AbstractAuthenticator implements Authenticat
         return (
             $request->isXmlHttpRequest() ||
             in_array('application/json', $request->getAcceptableContentTypes()) ||
+            in_array('application/ld+json', $request->getAcceptableContentTypes()) ||
+            in_array('application/problem+json', $request->getAcceptableContentTypes()) ||
             in_array('application/x-json', $request->getAcceptableContentTypes()) ||
             in_array('application/javascript', $request->getAcceptableContentTypes()) ||
             in_array('application/x-javascript', $request->getAcceptableContentTypes()) ||

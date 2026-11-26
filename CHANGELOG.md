@@ -5,6 +5,12 @@ and `1.8` (PHP 8.1+, Symfony 6.2–6.4); a 1.8.x entry after 1.9.0 is a backport
 The `## Upgrading to X.Y.Z` sections in the README have migration details. Format:
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [1.13.0] - 2026-11-26
+### Changed
+- A request without credentials on a stateless firewall now gets 401 instead of a 302 to the Peekaboo login page, unless it accepts `text/html` (a browser navigation still redirects). Stateful firewalls are unchanged. See "Upgrading to 1.13.0" in the README.
+- `application/ld+json` and `application/problem+json` clients get the JSON `{"error":"unauthorized"}` / `{"error":"forbidden"}` body, like `application/json`.
+- `PeekabooAuthenticator`'s constructor gained an optional, autowired `?Security $security = null`.
+
 ## [1.12.1] - 2026-11-24
 ### Fixed
 - Log Peekaboo's HTTP 429 ("Too many failed API key attempts") on `/api/user-by-key` as a `peekaboo_auth_error` **warning**, like 401/404, instead of an error. It means a caller keeps sending wrong API keys (its credentials, not a fault), and at ERROR it reached Sentry on every request while the caller was throttled. 403, 5xx and unexpected statuses stay errors.
